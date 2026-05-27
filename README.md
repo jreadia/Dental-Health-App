@@ -22,7 +22,8 @@ server/
     adminService.js          # Firestore operations for admins
   utils/                     # Utility modules (logger, etc.)
   tests/
-    userService.test.js      # User schema validation tests (Zod)
+    userService.test.js              # User schema validation tests (Zod)
+    testFirebaseConnection.test.js    # Firebase Admin SDK connection tests
   serviceAccountKey.json     # Firebase Admin SDK key (DO NOT COMMIT)
 ```
 
@@ -56,7 +57,11 @@ server/
 
 5. Run tests:
     ```sh
+    <!-- run all test -->
     npm test
+
+    <!-- run specific test -->
+    npm test -- "testname" (this is inside server/tests folder)
     ```
 
 ## Database Schema (Firestore)
@@ -88,11 +93,11 @@ Data validation handled by Zod schemas before Firestore operations.
 - Zod validation schemas created for users, dental images, admins
 - Firebase service layer implemented (CRUD operations)
 - Schema validation tests passing (users)
+- Firebase Admin SDK connection tests created and passing
 - Health check endpoint working (/health)
 - Cloud Storage skipped (Spark plan limitation, to be discussed with team)
 
-## Testing
-Verify server is running:
+### Server Health Check
 ```sh
 curl http://localhost:3000/health
 ```
