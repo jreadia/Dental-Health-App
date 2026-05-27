@@ -6,27 +6,34 @@ Backend for the Dental Web Application, built with Node.js, Express, Firebase, a
 
 ```
 server/
-  app.js                     # Main Express app (routes, middleware)
-  server.js                  # Entry point to start the server
-  config/
-    config.js                # Firebase Admin SDK initialization
-  routes/                    # API route handlers (empty for now)
-  middleware/                # Custom middleware for auth, error handling
-    auth.js                  # Firebase token verification middleware (empty for now)
-    errorHandler.js          # Centralized error handling (empty for now)
-  schemas/
-    userSchema.js            # Zod validation for user data
-    dentalImageSchema.js     # Zod validation for dental images and diagnosis
-    adminSchema.js           # Zod validation for admin data
-  services/
-    userService.js           # Firestore operations for users
-    dentalImageService.js    # Firestore operations for dental images
-    adminService.js          # Firestore operations for admins
-  utils/                     # Utility modules (logger, etc.) - not sure about this
-  tests/
-    userService.test.js              # User schema validation tests (Zod)
-    testFirebaseConnection.test.js    # Firebase Admin SDK connection tests
-  serviceAccountKey.json     # Firebase Admin SDK key (DO NOT COMMIT)
+├── app.js                              # Main Express app (orchestrates routes and middleware)
+├── server.js                           # Entry point to start the server
+├── serviceAccountKey.json              # Firebase Admin SDK key (DO NOT COMMIT)
+│
+├── config/
+│   └── config.js                       # Firebase Admin SDK initialization
+│
+├── routes/                             # API route handlers
+│   └── health.js                       # Health check endpoint
+│
+├── middleware/                         # Custom middleware for auth, error handling
+│   ├── auth.js                         # Firebase token verification middleware (empty for now)
+│   └── errorHandler.js                 # Centralized error handling middleware
+│
+├── schemas/                            # Data validation schemas (Zod)
+│   ├── userSchema.js                   # Zod validation for user data
+│   ├── dentalImageSchema.js            # Zod validation for dental images and diagnosis
+│   └── adminSchema.js                  # Zod validation for admin data
+│
+├── services/                           # Firestore operations
+│   ├── userService.js                  # User CRUD operations
+│   ├── dentalImageService.js           # Dental image CRUD operations
+│   └── adminService.js                 # Admin CRUD operations
+│
+├── tests/                              # Test suite
+    ├── userService.test.js             # User schema validation tests (Zod)
+    └── testFirebaseConnection.test.js  # Firebase Admin SDK connection tests
+
 ```
 
 ## Setup Instructions
@@ -90,7 +97,9 @@ Data validation handled by Zod schemas before Firestore operations.
 - Predictable JSON API contracts enforced with Zod validation
 
 ## Current Status
-- Express server initialized and running
+- Express server initialized with modular route and middleware structure
+- Health check endpoint in `routes/health.js` and mounted in `app.js`
+- Error handling middleware implemented in `middleware/errorHandler.js`
 - Firestore connected (Spark plan)
 - Zod validation schemas created for users, dental images, admins
 - Firebase service layer implemented (CRUD operations)
