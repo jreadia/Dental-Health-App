@@ -1,0 +1,95 @@
+const { db } = require('../config/config');
+
+// Create a new dental image (with optional diagnosis)
+const createDentalImage = async (imageId, imageData) => {
+  try {
+    const imageDoc = {
+      userId: imageData.userId,
+      imageUrl: imageData.imageUrl,
+      uploadDate: new Date(imageData.uploadDate),
+    };
+
+    // Add diagnosis if provided
+    if (imageData.diagnosis) {
+      imageDoc.diagnosis = {
+        plaqueDetected: imageData.diagnosis.plaqueDetected,
+        plaqueLevel: imageData.diagnosis.plaqueLevel,
+        oralHealthStatus: imageData.diagnosis.oralHealthStatus,
+        confidenceScore: imageData.diagnosis.confidenceScore,
+        diagnosisDate: new Date(imageData.diagnosis.diagnosisDate),
+      };
+    }
+
+    await db.collection('dental_images').doc(imageId).set(imageDoc);
+    return { success: true, imageId };
+  } catch (error) {
+    throw new Error(`Failed to create dental image: ${error.message}`);
+  }
+};
+
+// Get dental image by ID
+const getDentalImage = async (imageId) => {
+  try {
+    const doc = await db.collection('dental_images').doc(imageId).get();
+    if (!doc.exists) {
+      throw new Error('Dental image not found');
+    }
+    return { imageId: doc.id, ...doc.data() };
+  } catch (error) {
+    throw new Error(`Failed to retrieve dental image: ${error.message}`);
+  }
+};
+
+// Get all images for a user
+const getUserImages = async (userId) => {
+  try {
+    const snapshot = await db.collection('dental_images')
+      .where('userId', '==', userId)
+      .orderBy('uploadDate', 'desc')
+      .get();
+
+    const images = [];
+    snapshot.forEach((doc) => {
+      images.push({ imageId: doc.id, ...doc.data() });
+    });
+    return images;
+  } catch (error) {
+    throw new Error(`Failed to retrieve user images: ${error.message}`);
+  }
+};
+
+// Update diagnosis for an image
+const updateDiagnosis = async (imageId, diagnosisData) => {
+  try {
+    await db.collection('dental_images').doc(imageId).update({
+      diagnosis: {
+        plaqueDetected: diagnosisData.plaqueDetected,
+        plaqueLevel: diagnosisData.plaqueLevel,
+        oralHealthStatus: diagnosisData.oralHealthStatus,
+        confidenceScore: diagnosisData.confidenceScore,
+        diagnosisDate: new Date(diagnosisData.diagnosisDate),
+      },
+    });
+    return { success: true, imageId };
+  } catch (error) {
+    throw new Error(`Failed to update diagnosis: ${error.message}`);
+  }
+};
+
+// Delete dental image
+const deleteDentalImage = async (imageId) => {
+  try {
+    await db.collection('dental_images').doc(imageId).delete();
+    return { success: true, imageId };
+  } catch (error) {
+    throw new Error(`Failed to delete dental image: ${error.message}`);
+  }
+};
+
+module.exports = {
+  createDentalImage,
+  getDentalImage,
+  getUserImages,
+  updateDiagnosis,
+  deleteDentalImage,
+};
