@@ -50,4 +50,18 @@ describe('User Schema Validation', () => {
     const result = userUpdateSchema.safeParse(partialUpdate);
     expect(result.success).toBe(true);
   });
+
+  test('should reject invalid sex value', () => {
+    const invalidUser = {
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      birthDate: '2000-01-01T00:00:00Z',
+      sex: 'I dont know',
+      address: '123 Main St',
+    };
+
+    const result = userCreateSchema.safeParse(invalidUser);
+    expect(result.success).toBe(false);
+  });
 });
