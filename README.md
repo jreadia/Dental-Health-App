@@ -1,69 +1,53 @@
-# Dental Web Application Backend
 
-This is the backend for the Dental Web Application, built with Node.js, Express, Firebase, and Roboflow, following strict DevOps and architecture guidelines.
+# Dental Health App
 
-## Project Structure
+This is the repository for our Dental Health App.
 
-```
-server/
-  app.js                # Main Express app (routes, middleware)
-  server.js             # Entry point to start the server
-  /routes               # Route handlers (upload, appointments, users, etc.)
-  /middleware           # Custom middleware (auth, error handling)
-  /schemas              # Zod schemas for validation
-  /services             # Firebase Admin, Roboflow integration
-  /utils                # Utility modules (logger, etc.)
-  /config               # Configuration files
-  /tests                # Unit/integration tests
-  serviceAccountKey.json# Firebase Admin SDK key (DO NOT COMMIT)
-```
 
-## Setup Instructions
+## Branching Strategy
 
-1. **Clone the repository and switch to the backend branch:**
+- The `main` branch is the default branch and should always be stable.
+- For any new feature or bugfix, create a new branch from `main` and name it according to the feature you are adding (e.g., `feature/authentication`, `bugfix/login-error`).
+- Do **not** commit directly to `main`. Always use pull requests for merging changes.
+
+## Instructions for Developers
+
+1. **Clone the repository and switch to the main branch:**
    ```sh
    git clone <repo-url>
    cd <repo-name>
-   git checkout backend
+   git checkout main
    ```
 
-2. **Install dependencies:**
+2. **Create a new feature or bugfix branch from main:**
    ```sh
-   npm install
+   git checkout -b <feature-or-bugfix-branch>
    ```
+   > **Branch naming convention:** Use descriptive names, e.g., `feature/user-profile`, `bugfix/image-upload`.
 
-3. **Environment Variables:**
-   - Copy `.env.example` to `.env` and fill in your Firebase and Roboflow credentials.
-   - Place your `serviceAccountKey.json` in the `server/` directory (never commit this file).
-
-4. **Run the server:**
+3. **Make your changes and commit them:**
    ```sh
-   node server.js
+   git add .
+   git commit -m "<your message>"
    ```
 
-5. **Run tests:**
+4. **Push your branch and open a pull request to main:**
    ```sh
-   npm test
+   git push origin <feature-or-bugfix-branch>
+   ```
+   Then open a pull request on GitHub targeting the `main` branch.
+
+5. **Keep your branch up to date:**
+   Regularly pull the latest changes from `main` to avoid conflicts:
+   ```sh
+   git checkout main
+   git pull origin main
+   git checkout <your-branch>
+   git merge main
    ```
 
-## Key Technologies
-- Node.js + Express
-- Firebase Admin SDK (Firestore, Storage, Auth)
-- Roboflow API (YOLOv8)
-- Multer (in-memory file uploads)
-- Zod (input validation)
-- Jest & Supertest (unit/integration testing)
+6. **Do not commit secrets or service account keys.**
 
-## Architecture Guardrails
-- No local disk storage (all uploads in-memory, streamed to Firebase Storage)
-- All sensitive endpoints protected by Firebase Auth token verification
-- Data denormalization for fast NoSQL reads
-- Predictable JSON API contracts enforced with Zod
+---
 
-## Contribution
-- Follow the 4-week milestone plan and keep PRs focused and small.
-- All code must pass linting and tests before merging.
-- Never commit secrets or service account keys.
-
-## License
-MIT
+---
