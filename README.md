@@ -10,8 +10,10 @@ server/
   server.js                  # Entry point to start the server
   config/
     config.js                # Firebase Admin SDK initialization
-  routes/                    # Route handlers (to be created)
-  middleware/                # Custom middleware for auth, error handling (to be created)
+  routes/                    # API route handlers (empty for now)
+  middleware/                # Custom middleware for auth, error handling
+    auth.js                  # Firebase token verification middleware (empty for now)
+    errorHandler.js          # Centralized error handling (empty for now)
   schemas/
     userSchema.js            # Zod validation for user data
     dentalImageSchema.js     # Zod validation for dental images and diagnosis
@@ -20,7 +22,7 @@ server/
     userService.js           # Firestore operations for users
     dentalImageService.js    # Firestore operations for dental images
     adminService.js          # Firestore operations for admins
-  utils/                     # Utility modules (logger, etc.)
+  utils/                     # Utility modules (logger, etc.) - not sure about this
   tests/
     userService.test.js              # User schema validation tests (Zod)
     testFirebaseConnection.test.js    # Firebase Admin SDK connection tests
