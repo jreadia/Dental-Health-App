@@ -25,7 +25,7 @@
   "jest": {
     "testMatch": [
       "**/?(*.)+(test).[jt]s",
-      "!**/sample/**"
+      "!**/sample_server/**"
     ]
   }
 }
