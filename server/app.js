@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const { db } = require('./config/config');
+const healthRoutes = require('./routes/health');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -9,17 +11,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'Server is running' });
-});
-
-// Routes (to be added)
+// Routes
+app.use('/', healthRoutes);
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Internal Server Error' });
-});
+app.use(errorHandler);
 
 module.exports = app;
