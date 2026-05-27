@@ -1,20 +1,24 @@
-// added firebase admin initialization and configuration
-import admin from 'firebase-admin';
+// updated to be compatible with Render's ESM environment
 import 'dotenv/config.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import admin from 'firebase-admin';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const serviceAccount = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '../serviceAccountKey.json'), 'utf8')
-);
+// handle multiline private key for Render's environment variables
+const privateKey = process.env.FIREBASE_PRIVATE_KEY 
+  ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') 
+  : undefined;
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  projectId: process.env.FIREBASE_PROJECT_ID
-});
+// initialize Firebase Admin SDK if not already initialized
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: privateKey,
+    }),
+  });
+}
 
-const db = admin.firestore();
-
-export { admin, db };
+// export db and auth for use in other modules
+export const db = admin.firestore();
+export const auth = admin.auth();
+export { admin };
