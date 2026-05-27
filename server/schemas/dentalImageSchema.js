@@ -1,4 +1,4 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
 const diagnosisSchema = z.object({
   plaqueDetected: z.boolean(),
@@ -19,7 +19,7 @@ const dentalImageUpdateSchema = z.object({
   diagnosis: diagnosisSchema.optional(),
 });
 
-module.exports = {
+export {
   dentalImageCreateSchema,
   dentalImageUpdateSchema,
   diagnosisSchema,

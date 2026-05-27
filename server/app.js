@@ -1,8 +1,8 @@
-const express = require('express');
-const cors = require('cors');
-const { db } = require('./config/config');
-const healthRoutes = require('./routes/health');
-const errorHandler = require('./middleware/errorHandler');
+import express from 'express';
+import cors from 'cors';
+import { db } from './config/config.js';
+import healthRoutes from './routes/health.js';
+import errorHandler from './middleware/errorHandler.js';
 
 const app = express();
 
@@ -17,4 +17,4 @@ app.use('/', healthRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
-module.exports = app;
+export default app;

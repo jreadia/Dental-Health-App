@@ -1,4 +1,4 @@
-const { db } = require('../config/config');
+import { db } from '../config/config.js';
 
 // Create a new admin
 const createAdmin = async (adminId, adminData) => {
@@ -62,7 +62,7 @@ const deleteAdmin = async (adminId) => {
   }
 };
 
-module.exports = {
+export {
   createAdmin,
   getAdmin,
   getAllAdmins,

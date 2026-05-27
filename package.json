@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 jest",
+    "dev": "node server/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "axios": "^1.16.1",
     "cors": "^2.8.6",
@@ -19,10 +20,13 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "jest": "^30.4.2",
     "supertest": "^7.2.2"
   },
   "jest": {
+    "transform": {},
+    "testEnvironment": "node",
     "testMatch": [
       "**/?(*.)+(test).[jt]s",
       "!**/sample_server/**"

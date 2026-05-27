@@ -1,8 +1,14 @@
 // added firebase admin initialization and configuration
-const admin = require('firebase-admin');
-require('dotenv').config();
+import admin from 'firebase-admin';
+import 'dotenv/config.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const serviceAccount = require('../serviceAccountKey.json');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const serviceAccount = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../serviceAccountKey.json'), 'utf8')
+);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -11,4 +17,4 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-module.exports = { admin, db };
+export { admin, db };

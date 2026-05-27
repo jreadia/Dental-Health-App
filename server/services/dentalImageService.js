@@ -1,4 +1,4 @@
-const { db } = require('../config/config');
+import { db } from '../config/config.js';
 
 // Create a new dental image (with optional diagnosis)
 const createDentalImage = async (imageId, imageData) => {
@@ -86,7 +86,7 @@ const deleteDentalImage = async (imageId) => {
   }
 };
 
-module.exports = {
+export {
   createDentalImage,
   getDentalImage,
   getUserImages,

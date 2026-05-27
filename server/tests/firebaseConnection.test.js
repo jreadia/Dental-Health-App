@@ -1,4 +1,4 @@
-const { db, admin } = require('../config/config');
+import { db, admin } from '../config/config.js';
 
 describe('Firebase Admin SDK Connection', () => {
   test('should initialize Firebase Admin SDK', () => {

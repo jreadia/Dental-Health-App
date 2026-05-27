@@ -1,4 +1,4 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
 const userCreateSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(50),
@@ -11,7 +11,7 @@ const userCreateSchema = z.object({
 
 const userUpdateSchema = userCreateSchema.partial();
 
-module.exports = {
+export {
   userCreateSchema,
   userUpdateSchema,
 };

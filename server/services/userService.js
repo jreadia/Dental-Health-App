@@ -1,4 +1,4 @@
-const { db } = require('../config/config');
+import { db } from '../config/config.js';
 
 // Create a new user
 const createUser = async (userId, userData) => {
@@ -51,7 +51,7 @@ const deleteUser = async (userId) => {
   }
 };
 
-module.exports = {
+export {
   createUser,
   getUser,
   updateUser,

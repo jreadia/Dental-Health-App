@@ -32,7 +32,7 @@ server/
 │
 ├── tests/                              # Test suite
     ├── userService.test.js             # User schema validation tests (Zod)
-    └── testFirebaseConnection.test.js  # Firebase Admin SDK connection tests
+    └── firebaseConnection.test.js      # Firebase Admin SDK connection tests
 
 ```
 
@@ -61,17 +61,25 @@ server/
 
 4. Run the server:
     ```sh
-    node server/server.js
+    npm run dev
     ```
 
 5. Run tests:
     ```sh
-    <!-- run all test -->
+    # Run all tests
     npm test
 
-    <!-- run specific test -->
-    npm test -- "testname" (this is inside server/tests folder)
+    # Run specific test
+    npm test -- "testName.js" (inside server/tests folder)
     ```
+
+## Module System
+
+This project uses **ES Modules (ESM)** for modern JavaScript standards:
+- All files use `import`/`export` syntax
+- `package.json` has `"type": "module"` enabled
+- Jest configured to work with ESM via `jest.config.js`
+- All import paths require `.js` extensions
 
 ## Database Schema (Firestore)
 
@@ -89,6 +97,7 @@ Data validation handled by Zod schemas before Firestore operations.
 - Multer (in-memory file uploads)
 - Zod (input validation)
 - Jest & Supertest (unit/integration testing)
+- ES Modules (ESM)
 
 ## Architecture Guardrails
 - No local disk storage: all uploads in-memory, streamed to Firebase Storage (future)
@@ -107,6 +116,7 @@ Data validation handled by Zod schemas before Firestore operations.
 - Firebase Admin SDK connection tests created and passing
 - Health check endpoint working (/health)
 - Cloud Storage skipped (Spark plan limitation, to be discussed with team)
+- **Migrated to ES Modules (ESM)** for modern JavaScript standards
 
 ### Server Health Check
 ```sh
