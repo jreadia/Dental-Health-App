@@ -42,3 +42,6 @@ build/
 
 # Ignore local test files
 manual_test/
+
+# Ignore CLAUDE files
+CLAUDE.md
