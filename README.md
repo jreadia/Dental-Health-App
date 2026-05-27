@@ -29,34 +29,35 @@ server/
 ## Setup Instructions
 
 1. Install dependencies:
-   ```sh
-   npm install
-   ```
-   This installs: firebase-admin, dotenv, zod, cors, express, jest, and supertest
+    ```sh
+    npm install
+    ```
+    This installs: firebase-admin, dotenv, zod, cors, express, jest, and supertest
 
-2. Environment Variables:
-   Create `.env` at the root with:
-   ```
-   FIREBASE_PROJECT_ID=your-project-id
-   NODE_ENV=development
-   PORT=3000
-   ```
-   Note: Cloud Storage is skipped for now (requires paid plan). Will be added after team discussion.
+2. Firebase Admin SDK Setup:
+    - Go to Firebase Console > Settings > Service Accounts
+    - Generate a new private key
+    - Save it as `server/serviceAccountKey.json` (never commit this file)
+    - This file contains all credentials needed for the admin SDK
 
-3. Firebase Credentials:
-   - Go to Firebase Console > Settings > Service Accounts
-   - Generate a new private key
-   - Save it as `server/serviceAccountKey.json` (never commit this file)
+3. Environment Variables:
+    Create `.env` at the root with:
+    ```
+    FIREBASE_PROJECT_ID=your-project-id
+    NODE_ENV=development
+    PORT=3000
+    ```
+    **Note:** Only the project ID is needed in `.env` because `firebase-admin` uses the service account key (`serviceAccountKey.json`) for all other credentials. The Web SDK configs (API Key, Auth Domain, etc.) are not needed for the backend admin SDK.
 
 4. Run the server:
-   ```sh
-   node server/server.js
-   ```
+    ```sh
+    node server/server.js
+    ```
 
 5. Run tests:
-   ```sh
-   npm test
-   ```
+    ```sh
+    npm test
+    ```
 
 ## Database Schema (Firestore)
 
