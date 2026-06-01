@@ -1,6 +1,6 @@
 # Dental Web Application Backend
 
-Backend for the Dental Web Application, built with Node.js, Express, Firebase, and Roboflow following a 4-week accelerated development timeline on free-tier infrastructure.
+Backend for the Dental Web Application, built with Node.js, Express, Firebase, and YOLOv8 following a 4-week accelerated development timeline on free-tier infrastructure.
 
 ## Architecture
 
@@ -21,6 +21,8 @@ The application uses a microservice architecture on Render:
 ## Project Structure
 
 ```
+public/                                 # Mock frontend for local API testing purposes
+schema.dbml                             # Database Entity Relationship Diagram (ERD)
 server/
 ├── app.js                              # Main Express app (orchestrates routes and middleware)
 ├── server.js                           # Entry point to start the server
@@ -54,9 +56,11 @@ server/
     ├── firebase_tests/
     │   ├── firebaseConnection.test.js  # Firebase Admin SDK connection tests
     │   └── firestoreRules.test.js      # Firestore security rules tests
+    ├── middleware_tests/
+    │   ├── errorHandler.test.js        # Error handling middleware tests
+    │   └── token.test.js               # Auth token verification tests
     ├── routes_tests/
     │   ├── healthRoute.test.js         # Health check endpoint tests
-    │   ├── registerRoute.test.js       # Legacy register endpoint tests
     │   ├── authRoutes.test.js          # User authentication routes tests
     │   └── adminAuthRoutes.test.js     # Admin authentication routes tests
     └── schema_tests/
@@ -122,6 +126,7 @@ npm test -- adminAuthRoutes.test.js
 npm test -- schema_tests/
 npm test -- routes_tests/
 npm test -- firebase_tests/
+npm test -- middleware_tests/
 ```
 
 ## Testing
@@ -135,10 +140,14 @@ npm test -- firebase_tests/
 - `diagnosisResultSchema.test.js` - 24 tests for diagnosis results with enum validation
 - `appointmentSchema.test.js` - 23 tests for appointment scheduling with date/time validation
 
-**Route Tests (10 tests):**
-- `authRoutes.test.js` - 5 tests for user authentication validation and error handling
-- `adminAuthRoutes.test.js` - 5 tests for admin authentication validation and error handling
-- Tests cover: missing fields, invalid formats, email validation, password length
+**Middleware Tests:**
+- `errorHandler.test.js` - Tests error formatting and status codes
+- `token.test.js` - Tests Firebase token verification and edge cases
+
+**Route Tests:**
+- `healthRoute.test.js` - Tests health check endpoint
+- `authRoutes.test.js` - Tests for user authentication validation and error handling
+- `adminAuthRoutes.test.js` - Tests for admin authentication validation and error handling
 
 **Firebase Tests (2 tests):**
 - `firebaseConnection.test.js` - Verifies Firebase Admin SDK connection
@@ -168,6 +177,7 @@ Collections:
 - **admins**: Admin accounts (Firebase Auth linked)
 - **dental_images**: Images uploaded by users
 - **diagnosis_results**: AI diagnosis results linked to images
+- **admin_view_results**: Admin diagnosis reviews
 - **appointments**: Appointment bookings (pending implementation)
 
 Data validation handled by Zod schemas before Firestore operations.
@@ -255,7 +265,7 @@ Same as user authentication but at `/api/admin/auth/signup` and `/api/admin/auth
 - Zod schemas for all data models
 - Service layer for CRUD operations
 - Firebase token verification middleware
-- Comprehensive test suite (14 tests)
+- Comprehensive test suite (104 tests)
 - Error handling middleware
 
 ### Pending

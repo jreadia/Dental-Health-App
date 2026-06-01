@@ -53,13 +53,13 @@ Completed implementation of authentication system (signup/login for users and ad
 7. **`server/tests/routes_tests/authRoutes.test.js`** - NEW
    - Comprehensive tests for user authentication
    - Test cases:
-     - ✅ Valid signup with all required fields
-     - ✅ Valid login (when API key available)
-     - ❌ Duplicate email signup
-     - ❌ Missing required fields
-     - ❌ Invalid email format
-     - ❌ Password too short
-     - ❌ Missing email/password on login
+     - Valid signup with all required fields
+     - Valid login (when API key available)
+     - Duplicate email signup
+     - Missing required fields
+     - Invalid email format
+     - Password too short
+     - Missing email/password on login
    - Uses Supertest for HTTP testing
    - Mocks userService for isolated unit tests
 
@@ -70,8 +70,13 @@ Completed implementation of authentication system (signup/login for users and ad
    - Mocks adminService for isolated testing
 
 ### Documentation
-9. **`week4_updates.md`** - NEW
+9. **week4_updates.md** - NEW
    - This file - comprehensive tracking of all changes
+
+10. **schema.dbml** - NEW
+    - Database Entity Relationship Diagram (ERD)
+    - Defines collections and relationships
+    - Aligned with Firebase UIDs
 
 ---
 
@@ -79,47 +84,47 @@ Completed implementation of authentication system (signup/login for users and ad
 
 ### Schemas
 1. **`server/schemas/userSchema.js`**
-   - ✏️ Replaced `userCreateSchema` with `userSignupSchema` (added password field)
-   - ✏️ Added `userLoginSchema` (email + password for login)
-   - ✏️ Updated `userUpdateSchema` (now optional firstName/lastName only)
-   - ✏️ Removed: birthDate, sex, address fields (simplified per updated ERD)
+   - Replaced `userCreateSchema` with `userSignupSchema` (added password field)
+   - Added `userLoginSchema` (email + password for login)
+   - Updated `userUpdateSchema` (now optional firstName/lastName only)
+   - Removed: birthDate, sex, address fields (simplified per updated ERD)
 
 2. **`server/schemas/adminSchema.js`**
-   - ✏️ Replaced `adminCreateSchema` with `adminSignupSchema` (added password field)
-   - ✏️ Added `adminLoginSchema` (email + password for login)
-   - ✏️ Updated `adminUpdateSchema` (now optional fields only)
+   - Replaced `adminCreateSchema` with `adminSignupSchema` (added password field)
+   - Added `adminLoginSchema` (email + password for login)
+   - Updated `adminUpdateSchema` (now optional fields only)
 
 3. **`server/schemas/dentalImageSchema.js`**
-   - ✏️ Removed `diagnosisSchema` (moved to separate diagnosisResultSchema.js)
-   - ✏️ Removed `uploadDate` field (will be added server-side)
-   - ✏️ Simplified schema: userId, imageUrl only
+   - Removed `diagnosisSchema` (moved to separate diagnosisResultSchema.js)
+   - Removed `uploadDate` field (will be added server-side)
+   - Simplified schema: userId, imageUrl only
 
 ### Services
 4. **`server/services/userService.js`**
-   - ✏️ Replaced `createUser()` with `signupUser()` (now uses Firebase Auth)
-   - ✏️ Added Firebase Auth integration for user creation and deletion
-   - ✏️ Updated to use Firebase Admin SDK for auth operations
-   - ✏️ Stores user profile in Firestore with createdAt timestamp
-   - ✏️ Changed exports: signupUser, getUser, updateUser, deleteUser
+   - Replaced `createUser()` with `signupUser()` (now uses Firebase Auth)
+   - Added Firebase Auth integration for user creation and deletion
+   - Updated to use Firebase Admin SDK for auth operations
+   - Stores user profile in Firestore with createdAt timestamp
+   - Changed exports: signupUser, getUser, updateUser, deleteUser
 
 5. **`server/services/adminService.js`**
-   - ✏️ Replaced `createAdmin()` with `signupAdmin()` (now uses Firebase Auth)
-   - ✏️ Added Firebase Auth integration for admin creation and deletion
-   - ✏️ Updated to use Firebase Admin SDK for auth operations
-   - ✏️ Changed exports: signupAdmin, getAdmin, getAllAdmins, updateAdmin, deleteAdmin
+   - Replaced `createAdmin()` with `signupAdmin()` (now uses Firebase Auth)
+   - Added Firebase Auth integration for admin creation and deletion
+   - Updated to use Firebase Admin SDK for auth operations
+   - Changed exports: signupAdmin, getAdmin, getAllAdmins, updateAdmin, deleteAdmin
 
 ### Application
 6. **`server/app.js`**
-   - ✏️ Added import for auth routes: `import authRoutes from './routes/auth.js'`
-   - ✏️ Added import for admin auth routes: `import adminAuthRoutes from './routes/adminAuth.js'`
-   - ✏️ Mounted user auth routes: `app.use('/', authRoutes)`
-   - ✏️ Mounted admin auth routes: `app.use('/', adminAuthRoutes)`
+   - Added import for auth routes: `import authRoutes from './routes/auth.js'`
+   - Added import for admin auth routes: `import adminAuthRoutes from './routes/adminAuth.js'`
+   - Mounted user auth routes: `app.use('/', authRoutes)`
+   - Mounted admin auth routes: `app.use('/', adminAuthRoutes)`
 
 ---
 
 ## Features Implemented
 
-### ✅ User Authentication
+###  User Authentication
 - **Signup** - Create Firebase Auth user with email/password, store profile in Firestore
   - Validates: firstName, lastName, email, password (min 6 chars)
   - Returns: uid, user data
@@ -136,7 +141,7 @@ Completed implementation of authentication system (signup/login for users and ad
   - Endpoint: `POST /api/auth/login`
   - Status: 200 (OK) on success, 400 (Bad Request) on auth/validation error
 
-### ✅ Admin Authentication
+###  Admin Authentication
 - **Signup** - Same as user signup but for admins
   - Endpoint: `POST /api/admin/auth/signup`
   - Returns admin profile instead of user profile
@@ -145,13 +150,13 @@ Completed implementation of authentication system (signup/login for users and ad
   - Endpoint: `POST /api/admin/auth/login`
   - Returns admin profile instead of user profile
 
-### ✅ Firebase Auth Middleware
+###  Firebase Auth Middleware
 - Middleware for protected routes (ready to use)
 - Verifies Bearer token from Authorization header
 - Extracts uid and email for downstream use
 - Returns 401 for missing/invalid tokens
 
-### ✅ Data Schemas
+###  Data Schemas
 - **Diagnosis Results** - Separate collection schema
   - Linked to dental images by imageId
   - Fields: plaqueDetected, plaqueLevel, oralHealthStatus, confidenceScore
@@ -167,24 +172,24 @@ Completed implementation of authentication system (signup/login for users and ad
 ## Tests Added
 
 ### User Authentication Tests (authRoutes.test.js)
-- ✅ Valid signup returns 201 with user data
-- ✅ Duplicate email returns 400
-- ✅ Missing required fields returns 400
-- ✅ Invalid email format returns 400
-- ✅ Short password returns 400
-- ✅ Missing email/password on login returns 400
-- ✅ Invalid email format on login returns 400
+- Valid signup returns 201 with user data
+- Duplicate email returns 400
+- Missing required fields returns 400
+- Invalid email format returns 400
+- Short password returns 400
+- Missing email/password on login returns 400
+- Invalid email format on login returns 400
 
 **Total: 7 tests**
 
 ### Admin Authentication Tests (adminAuthRoutes.test.js)
-- ✅ Valid signup returns 201 with admin data
-- ✅ Duplicate email returns 400
-- ✅ Missing required fields returns 400
-- ✅ Invalid email format returns 400
-- ✅ Short password returns 400
-- ✅ Missing email/password on login returns 400
-- ✅ Invalid email format on login returns 400
+- Valid signup returns 201 with admin data
+- Duplicate email returns 400
+- Missing required fields returns 400
+- Invalid email format returns 400
+- Short password returns 400
+- Missing email/password on login returns 400
+- Invalid email format on login returns 400
 
 **Total: 7 tests**
 
@@ -263,7 +268,7 @@ NODE_ENV=development
 
 ## Known Limitations & Future Work
 
-### ✏️ Deferred to Future Weeks
+###  Deferred to Future Weeks
 1. **Image Upload Endpoints** - Cloudinary integration pending
 2. **Appointments API** - Schema created, endpoints deferred
 3. **Admin View Results Access Control** - Role-based access control not yet implemented
@@ -272,14 +277,14 @@ NODE_ENV=development
 6. **Logout Endpoint** - Firebase handles token expiration client-side
 7. **Token Refresh** - Token refresh endpoint not implemented
 
-### ⚠️ Current Constraints
+###  Current Constraints
 - **Firebase REST API Dependency** - Login endpoints depend on FIREBASE_API_KEY being set
   - If API key missing, login returns 500 error
   - Frontend alternative: Use Firebase Web SDK for authentication
 - **No Rate Limiting** - Auth endpoints should have rate limiting for production
 - **No CSRF Protection** - Should add for production deployment
 
-### 🔒 Security Notes
+###  Security Notes
 - Passwords are hashed by Firebase Auth automatically
 - Firebase Admin SDK handles secure token verification
 - All endpoints validate input with Zod before processing
