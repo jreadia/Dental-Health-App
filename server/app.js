@@ -16,8 +16,8 @@ app.use(cors());
 
 // Routes
 app.use('/', healthRoutes);
-app.use('/', authRoutes, verifyFirebaseToken);
-app.use('/', adminAuthRoutes, verifyFirebaseToken);
+app.use('/', authRoutes);
+app.use('/', adminAuthRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
