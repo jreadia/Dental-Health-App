@@ -2,7 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import { db } from './config/config.js';
 import healthRoutes from './routes/health.js';
-import registerUserRoutes from './routes/registerUser.js';
+import authRoutes from './routes/auth.js';
+import adminAuthRoutes from './routes/adminAuth.js';
 import errorHandler from './middleware/errorHandler.js';
 
 const app = express();
@@ -14,7 +15,8 @@ app.use(cors());
 
 // Routes
 app.use('/', healthRoutes);
-app.use('/', registerUserRoutes);
+app.use('/', authRoutes);
+app.use('/', adminAuthRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

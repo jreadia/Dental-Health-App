@@ -1,17 +1,27 @@
-import { db } from '../config/config.js';
+import { db, auth } from '../config/config.js';
 
-// Create a new admin
-const createAdmin = async (adminId, adminData) => {
+// Signup: Create Firebase Auth admin and store profile in Firestore
+const signupAdmin = async (email, password, adminData) => {
   try {
-    await db.collection('admins').doc(adminId).set({
+    // Create admin in Firebase Auth
+    const adminRecord = await auth.createUser({
+      email,
+      password,
+    });
+
+    const uid = adminRecord.uid;
+
+    // Store admin profile in Firestore
+    await db.collection('admins').doc(uid).set({
       firstName: adminData.firstName,
       lastName: adminData.lastName,
-      email: adminData.email,
+      email,
       createdAt: new Date(),
     });
-    return { success: true, adminId };
+
+    return { success: true, uid, email, firstName: adminData.firstName, lastName: adminData.lastName };
   } catch (error) {
-    throw new Error(`Failed to create admin: ${error.message}`);
+    throw new Error(`Failed to sign up admin: ${error.message}`);
   }
 };
 
@@ -55,7 +65,12 @@ const updateAdmin = async (adminId, adminData) => {
 // Delete admin
 const deleteAdmin = async (adminId) => {
   try {
+    // Delete from Firestore
     await db.collection('admins').doc(adminId).delete();
+
+    // Delete from Firebase Auth
+    await auth.deleteUser(adminId);
+
     return { success: true, adminId };
   } catch (error) {
     throw new Error(`Failed to delete admin: ${error.message}`);
@@ -63,9 +78,10 @@ const deleteAdmin = async (adminId) => {
 };
 
 export {
-  createAdmin,
+  signupAdmin,
   getAdmin,
   getAllAdmins,
   updateAdmin,
   deleteAdmin,
 };
+

@@ -1,6 +1,22 @@
 # Dental Web Application Backend
 
-Backend for the Dental Web Application, built with Node.js, Express, Firebase, and Roboflow (Not Final) following DevOps and architecture guidelines.
+Backend for the Dental Web Application, built with Node.js, Express, Firebase, and Roboflow following a 4-week accelerated development timeline on free-tier infrastructure.
+
+## Architecture
+
+The application uses a microservice architecture on Render:
+
+1. **Node.js Backend** (main API server) - Handles authentication, data management, and orchestration
+2. **ML Inference Service** (teammate-built) - Separate endpoint for YOLOv8 model inference
+3. **Firebase** (external) - Authentication and database
+4. **Cloudinary** (external, TBD) - Image storage
+
+**Inference Flow**:
+1. User uploads dental image → Stored in Cloudinary
+2. Frontend calls Node.js `/api/diagnosis/create` with image URL
+3. Node.js calls ML Inference endpoint (HTTP POST) with image
+4. ML Service returns: plaqueDetected, plaqueLevel, oralHealthStatus, confidenceScore
+5. Node.js stores results in Firestore diagnosis_results collection
 
 ## Project Structure
 
@@ -13,159 +29,260 @@ server/
 │   └── config.js                       # Firebase Admin SDK initialization (uses env vars)
 │
 ├── routes/                             # API route handlers
-│   └── health.js                       # Health check endpoint
+│   ├── health.js                       # Health check endpoint
+│   ├── auth.js                         # User authentication (signup/login)
+│   └── adminAuth.js                    # Admin authentication (signup/login)
 │
 ├── middleware/                         # Custom middleware for auth, error handling
-│   ├── auth.js                         # Firebase token verification middleware (empty for now)
+│   ├── auth.js                         # Firebase token verification middleware
 │   └── errorHandler.js                 # Centralized error handling middleware
 │
 ├── schemas/                            # Data validation schemas (Zod)
-│   ├── userSchema.js                   # Zod validation for user data
-│   ├── dentalImageSchema.js            # Zod validation for dental images and diagnosis
-│   └── adminSchema.js                  # Zod validation for admin data
+│   ├── userSchema.js                   # User signup, login, and update validation
+│   ├── adminSchema.js                  # Admin signup, login, and update validation
+│   ├── dentalImageSchema.js            # Dental image validation
+│   ├── diagnosisResultSchema.js        # Diagnosis result validation
+│   └── appointmentSchema.js            # Appointment validation
 │
 ├── services/                           # Firestore operations
-│   ├── userService.js                  # User CRUD operations
+│   ├── userService.js                  # User CRUD and authentication operations
+│   ├── adminService.js                 # Admin CRUD and authentication operations
 │   ├── dentalImageService.js           # Dental image CRUD operations
-│   └── adminService.js                 # Admin CRUD operations
+│   └── diagnosisResultService.js       # Diagnosis result CRUD operations
 │
-├── tests/                              # Test suite (ESM)
-    ├── userService.test.js             # User schema validation tests (Zod)
-    ├── firebaseConnection.test.js      # Firebase Admin SDK connection tests
-    └── firestoreRules.test.js          # Firestore security rules & CRUD tests
-
+└── tests/                              # Test suite (ESM)
+    ├── firebase_tests/
+    │   ├── firebaseConnection.test.js  # Firebase Admin SDK connection tests
+    │   └── firestoreRules.test.js      # Firestore security rules tests
+    ├── routes_tests/
+    │   ├── healthRoute.test.js         # Health check endpoint tests
+    │   ├── registerRoute.test.js       # Legacy register endpoint tests
+    │   ├── authRoutes.test.js          # User authentication routes tests
+    │   └── adminAuthRoutes.test.js     # Admin authentication routes tests
+    └── schema_tests/
+        ├── userService.test.js         # User schema validation tests
+        ├── adminService.test.js        # Admin schema validation tests
+        ├── dentalImageSchema.test.js   # Dental image schema tests
+        ├── diagnosisResultSchema.test.js # Diagnosis result schema tests
+        └── appointmentSchema.test.js   # Appointment schema tests
 ```
 
 ## Setup Instructions
 
-1. Install dependencies:
-    ```sh
-    npm install
-    ```
-    This installs: firebase-admin, firebase, dotenv, zod, cors, express, jest, and supertest
+### 1. Install dependencies
+```sh
+npm install
+```
+This installs: firebase-admin, firebase, dotenv, zod, cors, express, jest, and supertest.
 
-2. Firebase Credentials:
-    Get these from Firebase Console > Settings > Service Accounts > Generate New Private Key:
-    - `projectId`
-    - `clientEmail` 
-    - `privateKey` (the full private key with embedded `\n` characters)
+### 2. Firebase Credentials
 
-3. Environment Variables:
-    Create `.env` at the root with:
-    ```
-    # firebase admin SDK
-    FIREBASE_PROJECT_ID=your-project-id
-    FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
-    FIREBASE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n
-    
-    # firebase web SDK (client)
-    FIREBASE_API_KEY=your-web-api-key
-    FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-    FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-    FIREBASE_MESSAGING_SENDER_ID=your-sender-id
-    FIREBASE_APP_ID=your-app-id
-    
-    NODE_ENV=development
-    PORT=3000
-    ```
-    **Note:** All Firebase credentials use environment variables for production deployment (e.g., Render). The private key will have literal `\n` characters that get properly escaped by the `.replace(/\\n/g, '\n')` logic in config.js.
+Get these from Firebase Console > Settings > Service Accounts > Generate New Private Key:
+- `projectId`
+- `clientEmail`
+- `privateKey` (the full private key with embedded `\n` characters)
 
-4. Run the server:
-    ```sh
-    npm run dev
-    ```
+### 3. Environment Variables
 
-5. Run tests:
-    ```sh
-    # Run all tests
-    npm test
+Create `.env` at the root with:
+```
+# Firebase Admin SDK
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n
 
-    # Run specific test
-    npm test -- userService.test.js
-    npm test -- firebaseConnection.test.js
-    npm test -- firestoreRules.test.js
-    ```
+# Firebase Web SDK (client)
+FIREBASE_API_KEY=your-web-api-key
+FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+FIREBASE_APP_ID=your-app-id
+
+NODE_ENV=development
+PORT=3000
+```
+
+Note: The private key will have literal `\n` characters that get properly escaped by the `.replace(/\\n/g, '\n')` logic in config.js.
+
+### 4. Run the server
+```sh
+npm run dev
+```
+
+### 5. Run tests
+```sh
+# Run all tests
+npm test
+
+# Run specific test file
+npm test -- authRoutes.test.js
+npm test -- adminAuthRoutes.test.js
+
+# Run by test type
+npm test -- schema_tests/
+npm test -- routes_tests/
+npm test -- firebase_tests/
+```
+
+## Testing
+
+### Test Suite (104 tests, all passing)
+
+**Schema Tests (97 tests):**
+- `userService.test.js` - 20 tests for user signup, login, and update validation
+- `adminService.test.js` - 19 tests for admin signup, login, and update validation
+- `dentalImageSchema.test.js` - 11 tests for dental image creation and updates
+- `diagnosisResultSchema.test.js` - 24 tests for diagnosis results with enum validation
+- `appointmentSchema.test.js` - 23 tests for appointment scheduling with date/time validation
+
+**Route Tests (10 tests):**
+- `authRoutes.test.js` - 5 tests for user authentication validation and error handling
+- `adminAuthRoutes.test.js` - 5 tests for admin authentication validation and error handling
+- Tests cover: missing fields, invalid formats, email validation, password length
+
+**Firebase Tests (2 tests):**
+- `firebaseConnection.test.js` - Verifies Firebase Admin SDK connection
+- `firestoreRules.test.js` - Tests Firestore security rules (deny unauthenticated, allow admin SDK)
+
+### Test Coverage
+
+- **Input Validation**: Email format, password length, required fields
+- **Schema Validation**: All Zod schemas tested for valid and invalid data
+- **Enum Validation**: Plaque levels, oral health status, appointment status
+- **Firebase Integration**: Connection and security rule verification
+- **Error Handling**: Proper HTTP status codes and error messages
 
 ## Module System
 
-This project uses **ES Modules (ESM)** for modern JavaScript standards:
+This project uses ES Modules (ESM) for modern JavaScript standards:
 - All files use `import`/`export` syntax
 - `package.json` has `"type": "module"` enabled
-- Jest configured to work with ESM via `jest.config.js`
+- Jest configured to work with ESM
 - All import paths require `.js` extensions
 - Firebase Admin SDK exports: `db`, `auth`, `admin`
-
-## Test Structure
-
-- **userService.test.js** - Zod schema validation for user data
-- **firebaseConnection.test.js** - Verifies actual Firestore connection with read operation
-- **firestoreRules.test.js** - Tests Firestore security rules:
-  - Verifies unauthenticated clients are DENIED (client SDK)
-  - Verifies admin SDK can perform CRUD operations
 
 ## Database Schema (Firestore)
 
 Collections:
-- **users**: User profiles and account information
-- **dental_images**: Images with embedded diagnosis results
-- **admins**: Admin accounts
+- **users**: User profiles and account information (Firebase Auth linked)
+- **admins**: Admin accounts (Firebase Auth linked)
+- **dental_images**: Images uploaded by users
+- **diagnosis_results**: AI diagnosis results linked to images
+- **appointments**: Appointment bookings (pending implementation)
 
 Data validation handled by Zod schemas before Firestore operations.
 
-## Key Technologies
-- Node.js + Express.js
-- Firebase Admin SDK (Firestore, Auth)
-- Firebase Web SDK (for client-side testing)
-- Roboflow API (YOLOv8) — Not Final, suggestion for model hosting
-- Multer (in-memory file uploads)
-- Zod (data validation)
-- Jest & Supertest (testing)
-- ES Modules (ESM)
+## Authentication
 
-## Architecture Guardrails
-- No local disk storage: all uploads in-memory, streamed to Firebase Storage (future)
-- All sensitive endpoints protected by Firebase Auth token verification
-- Data denormalization for fast NoSQL reads (diagnosis embedded in dental_images)
-- Predictable JSON API contracts enforced with Zod validation
-- Firestore security rules: deny all unauthenticated access (frontend users blocked, admin SDK allowed)
+User and admin authentication uses Firebase Authentication with email/password. The backend verifies Firebase ID tokens using the Admin SDK.
 
-## Current Status
+### User Signup
+```
+POST /api/auth/signup
+Content-Type: application/json
 
-**Core Infrastructure**
-- Express server initialized with modular route and middleware structure
-- Health check endpoint in `routes/health.js` and mounted in `app.js`
-- Error handling middleware implemented in `middleware/errorHandler.js`
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "password": "SecurePassword123"
+}
 
-**Database & Configuration**
-- Firestore connected (Spark plan)
-- Config uses environment variables for Render deployment
-- Firebase Admin SDK initialized with initialization guard
-
-**Data Validation & Services**
-- Zod validation schemas created for users, dental images, admins
-- Firebase service layer implemented (CRUD operations for users, dental images, admins)
-
-**Testing**
-- Schema validation tests passing (users)
-- Firebase Admin SDK connection tests passing
-- Firestore security rules tests passing (denies unauthenticated, allows admin SDK)
-
-**Module System**
-- Migrated to ES Modules (ESM) with proper Jest configuration
-
-**Pending**
-- Cloud Storage (Spark plan limitation, to be discussed with team)
-
-### Server Health Check
-```sh
-curl http://localhost:3000/health
+Response (201):
+{
+  "success": true,
+  "uid": "...",
+  "user": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com"
+  }
+}
 ```
 
-## Next Steps
-- Create Express routes for API endpoints (users, images, admins)
-- Implement Firebase Auth middleware for token verification
-- Add image upload endpoint with multer integration (after Cloud Storage enabled)
-- Expand integration tests for CRUD endpoints
+### User Login
+```
+POST /api/auth/login
+Content-Type: application/json
 
-## License
-MIT
+{
+  "email": "john@example.com",
+  "password": "SecurePassword123"
+}
+
+Response (200):
+{
+  "success": true,
+  "token": "...",
+  "user": {
+    "uid": "...",
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+### Admin Signup and Login
+Same as user authentication but at `/api/admin/auth/signup` and `/api/admin/auth/login`.
+
+## Architecture Guardrails
+
+- No local disk storage: Images handled as in-memory buffers, streamed to external storage
+- No serverless backend conversions: Image uploads handled on Render, not Vercel
+- Token verification mandatory: All protected endpoints verify Firebase ID tokens
+- NoSQL denormalization: Frequently-accessed data embedded to keep reads fast
+- ES Modules only: All files use import/export syntax
+- Zod gateway validation: All request payloads validated before Firestore operations
+
+## Key Technologies
+
+- Node.js 18+ with ES Modules
+- Express 5.2.1
+- Firebase Admin SDK 13.10.0 (Firestore, Auth)
+- Firebase Web SDK (client-side auth)
+- Zod 4.4.3 (data validation)
+- Jest 30.4 + Supertest 7.2 (testing)
+- YOLOv8 (via separate inference endpoint hosted on Render)
+
+## Current Implementation Status
+
+### Completed
+- Express server with modular structure
+- Firebase Admin SDK configured for Render deployment
+- Health check endpoint
+- User and admin authentication (signup/login)
+- Zod schemas for all data models
+- Service layer for CRUD operations
+- Firebase token verification middleware
+- Comprehensive test suite (14 tests)
+- Error handling middleware
+
+### Pending
+- Image upload endpoints (awaiting Cloudinary setup)
+- ML Inference endpoint integration (awaiting teammate's endpoint URL)
+- Roboflow API integration with Node.js (deferred to ML service)
+- Dental image CRUD endpoints
+- Appointments API endpoints
+- Admin dashboard endpoints
+- Email verification flow
+- Password reset flow
+
+## Deployment
+
+Server is configured to run on Render free tier with the following constraints:
+- 512MB RAM limit
+- Must handle all image operations in-memory
+- Uses Firebase Firestore as primary database
+- Calls teammate's ML Inference endpoint via HTTP for diagnosis predictions
+
+All environment variables must be set in the deployment platform, including the ML Inference endpoint URL once available.
+
+## Next Steps
+
+1. Complete image upload implementation (Cloudinary or Firebase Storage)
+2. Implement protected endpoints with auth middleware
+3. Integrate Roboflow API for diagnosis results
+4. Add appointments management endpoints
+5. Implement admin dashboard endpoints
+

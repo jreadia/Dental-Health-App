@@ -1,20 +1,29 @@
-import { db } from '../config/config.js';
+import { db, auth } from '../config/config.js';
 
-// Create a new user
-const createUser = async (userId, userData) => {
+// Signup: Create Firebase Auth user and store profile in Firestore
+const signupUser = async (email, password, userData) => {
   try {
-    await db.collection('users').doc(userId).set({
+    // Create user in Firebase Auth
+    const userRecord = await auth.createUser({
+      email,
+      password,
+    });
+
+    const uid = userRecord.uid;
+
+    // Store user profile in Firestore
+    await db.collection('users').doc(uid).set({
       firstName: userData.firstName,
       lastName: userData.lastName,
-      email: userData.email,
-      birthDate: new Date(userData.birthDate),
-      sex: userData.sex,
-      address: userData.address,
+      email,
       createdAt: new Date(),
     });
-    return { success: true, userId };
+
+    // Get Firebase ID token (return to client to use for authentication)
+    // Note: Frontend will need to sign in and get token
+    return { success: true, uid, email, firstName: userData.firstName, lastName: userData.lastName };
   } catch (error) {
-    throw new Error(`Failed to create user: ${error.message}`);
+    throw new Error(`Failed to sign up user: ${error.message}`);
   }
 };
 
@@ -44,7 +53,12 @@ const updateUser = async (userId, userData) => {
 // Delete user
 const deleteUser = async (userId) => {
   try {
+    // Delete from Firestore
     await db.collection('users').doc(userId).delete();
+
+    // Delete from Firebase Auth
+    await auth.deleteUser(userId);
+
     return { success: true, userId };
   } catch (error) {
     throw new Error(`Failed to delete user: ${error.message}`);
@@ -52,8 +66,9 @@ const deleteUser = async (userId) => {
 };
 
 export {
-  createUser,
+  signupUser,
   getUser,
   updateUser,
   deleteUser,
 };
+
