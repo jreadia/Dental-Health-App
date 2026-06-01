@@ -1,4 +1,4 @@
-import { userCreateSchema, userUpdateSchema } from '../schemas/userSchema.js';
+import { userCreateSchema, userUpdateSchema } from '../../schemas/userSchema.js';
 
 describe('User Schema Validation', () => {
   test('should validate valid user data', () => {
