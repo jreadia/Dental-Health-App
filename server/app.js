@@ -5,6 +5,7 @@ import healthRoutes from './routes/health.js';
 import authRoutes from './routes/auth.js';
 import adminAuthRoutes from './routes/adminAuth.js';
 import errorHandler from './middleware/errorHandler.js';
+import verifyFirebaseToken from './middleware/token.js';
 
 const app = express();
 
@@ -15,8 +16,8 @@ app.use(cors());
 
 // Routes
 app.use('/', healthRoutes);
-app.use('/', authRoutes);
-app.use('/', adminAuthRoutes);
+app.use('/', authRoutes, verifyFirebaseToken);
+app.use('/', adminAuthRoutes, verifyFirebaseToken);
 
 // Error handling middleware
 app.use(errorHandler);
