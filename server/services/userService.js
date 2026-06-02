@@ -1,4 +1,4 @@
-import { db, auth } from '../config/config.js';
+import { db, auth } from '../config/firebase.js';
 
 // Signup: Create Firebase Auth user and store profile in Firestore
 const signupUser = async (email, password, userData) => {

@@ -1,4 +1,4 @@
-import { db } from '../config/config.js';
+import { db } from '../config/firebase.js';
 
 // Create a new diagnosis result
 const createDiagnosisResult = async (resultData) => {

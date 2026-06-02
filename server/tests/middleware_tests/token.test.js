@@ -1,12 +1,12 @@
 import { jest } from '@jest/globals';
 
-jest.unstable_mockModule('../../config/config.js', () => ({
+jest.unstable_mockModule('../../config/firebase.js', () => ({
   auth: {
     verifyIdToken: jest.fn()
   }
 }));
 
-const { auth } = await import('../../config/config.js');
+const { auth } = await import('../../config/firebase.js');
 const { default: verifyFirebaseToken } = await import('../../middleware/token.js');
 
 describe('verifyFirebaseToken Middleware', () => {
@@ -36,7 +36,7 @@ describe('verifyFirebaseToken Middleware', () => {
 
   test('should return 401 if authorization header does not start with Bearer ', async () => {
     mockReq.headers.authorization = 'Basic token123';
-    
+
     await verifyFirebaseToken(mockReq, mockRes, mockNext);
 
     expect(mockRes.status).toHaveBeenCalledWith(401);
@@ -53,9 +53,9 @@ describe('verifyFirebaseToken Middleware', () => {
 
     expect(auth.verifyIdToken).toHaveBeenCalledWith('invalid-token');
     expect(mockRes.status).toHaveBeenCalledWith(401);
-    expect(mockRes.json).toHaveBeenCalledWith({ 
-      error: 'Invalid or expired token', 
-      details: mockError.message 
+    expect(mockRes.json).toHaveBeenCalledWith({
+      error: 'Invalid or expired token',
+      details: mockError.message
     });
     expect(mockNext).not.toHaveBeenCalled();
   });

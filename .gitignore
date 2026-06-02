@@ -46,3 +46,6 @@ manual_test/
 # Ignore CLAUDE files
 CLAUDE.md
 overview.md
+
+# Ignore Cloudinary files
+CLOUDINARY.md

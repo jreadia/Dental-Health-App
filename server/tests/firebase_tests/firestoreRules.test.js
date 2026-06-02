@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import { db as adminDb } from '../../config/config.js';
+import { db as adminDb } from '../../config/firebase.js';
 
 // client config for testing Firestore rules
 const firebaseClientConfig = {
