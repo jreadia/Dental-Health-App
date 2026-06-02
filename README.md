@@ -304,7 +304,6 @@ Response (201):
 
 ### Pending
 - ML Inference endpoint integration (awaiting teammate's endpoint URL)
-- Roboflow API integration with Node.js (deferred to ML service)
 - Dental image CRUD endpoints (view/delete)
 - Appointments API endpoints
 - Admin dashboard endpoints
