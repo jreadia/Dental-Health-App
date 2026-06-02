@@ -19,7 +19,7 @@ Completed implementation of authentication system (signup/login for users and ad
    - Supports create and update with optional fields
 
 ### Middleware
-3. **`server/middleware/auth.js`** - NEW
+3. **`server/middleware/token.js`** - NEW (formerly auth.js)
    - Firebase ID token verification middleware
    - Extracts Bearer token from Authorization header
    - Verifies token using Firebase Admin SDK
@@ -69,11 +69,24 @@ Completed implementation of authentication system (signup/login for users and ad
    - Test cases for signup/login validation and error handling
    - Mocks adminService for isolated testing
 
+9. **`server/tests/routes_tests/dentalImagesRoutes.test.js`** - NEW
+   - Tests for image upload endpoints using mocked Cloudinary and Firestore services
+
+### Cloudinary & Upload Integration
+10. **`server/config/cloudinary.js`** - NEW
+    - SDK initialization and configuration for Cloudinary using env vars
+
+11. **`server/middleware/upload.js`** - NEW
+    - Multer configuration for handling multipart/form-data using in-memory storage
+
+12. **`server/routes/dentalImages.js`** - NEW
+    - Exposes the `/api/dental-images/upload` endpoint
+
 ### Documentation
-9. **week4_updates.md** - NEW
+13. **week4_updates.md** - NEW
    - This file - comprehensive tracking of all changes
 
-10. **schema.dbml** - NEW
+14. **schema.dbml** - NEW
     - Database Entity Relationship Diagram (ERD)
     - Defines collections and relationships
     - Aligned with Firebase UIDs
@@ -119,6 +132,21 @@ Completed implementation of authentication system (signup/login for users and ad
    - Added import for admin auth routes: `import adminAuthRoutes from './routes/adminAuth.js'`
    - Mounted user auth routes: `app.use('/', authRoutes)`
    - Mounted admin auth routes: `app.use('/', adminAuthRoutes)`
+   - Mounted dental image routes: `app.use('/api/dental-images', dentalImagesRoutes)`
+
+### Project Configuration & UI
+7. **`package.json`**
+   - Added `cloudinary` and `multer` dependencies
+
+8. **`public/index.html`**
+   - Added 'Image Upload' tab to UI mockup
+   - Added 'Logout' button to clear localStorage token
+
+9. **`README.md`**
+   - Updated test counts, endpoints, architecture, and tech stack details
+
+10. **`server/config/firebase.js`**
+    - Renamed from `config.js` to `firebase.js` for clarity
 
 ---
 
@@ -155,6 +183,14 @@ Completed implementation of authentication system (signup/login for users and ad
 - Verifies Bearer token from Authorization header
 - Extracts uid and email for downstream use
 - Returns 401 for missing/invalid tokens
+
+### Image Uploads
+- **Upload to Cloudinary** - Stream image directly to Cloudinary using in-memory multer storage
+  - Requires Firebase Bearer token for authentication
+  - Automatically saves the resulting secure URL and user ID to Firestore
+  - Respects 5MB free-tier constraints
+  - Endpoint: `POST /api/dental-images/upload`
+  - Status: 201 (Created) on success
 
 ###  Data Schemas
 - **Diagnosis Results** - Separate collection schema
@@ -193,7 +229,15 @@ Completed implementation of authentication system (signup/login for users and ad
 
 **Total: 7 tests**
 
-**Grand Total: 14 new tests**
+### Image Upload Tests (dentalImagesRoutes.test.js)
+- Valid image upload returns 201 (mocking Cloudinary & Firestore)
+- Missing image returns 400
+- Cloudinary upload failure returns 500
+- Firestore saving failure returns 500
+
+**Total: 4 tests**
+
+**Grand Total: 18 new tests**
 
 ---
 
@@ -210,6 +254,11 @@ Completed implementation of authentication system (signup/login for users and ad
 |--------|----------|---------|----------|--------|
 | POST | `/api/admin/auth/signup` | { firstName, lastName, email, password } | { success, admin, token } | 201/400 |
 | POST | `/api/admin/auth/login` | { email, password } | { success, token, admin } | 200/400 |
+
+### Dental Images
+| Method | Endpoint | Request | Response | Status |
+|--------|----------|---------|----------|--------|
+| POST | `/api/dental-images/upload` | multipart/form-data (image) | { success, data: { imageId, imageUrl } } | 201/400/500 |
 
 ---
 
@@ -260,6 +309,12 @@ FIREBASE_PROJECT_ID=your-project-id
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
 FIREBASE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n
 FIREBASE_API_KEY=your-web-api-key  # NEW - required for login endpoints
+
+# Cloudinary Image Storage
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+
 PORT=3000
 NODE_ENV=development
 ```
@@ -269,13 +324,12 @@ NODE_ENV=development
 ## Known Limitations & Future Work
 
 ###  Deferred to Future Weeks
-1. **Image Upload Endpoints** - Cloudinary integration pending
-2. **Appointments API** - Schema created, endpoints deferred
-3. **Admin View Results Access Control** - Role-based access control not yet implemented
-4. **Email Verification** - No email verification flow
-5. **Password Reset** - No password reset mechanism
-6. **Logout Endpoint** - Firebase handles token expiration client-side
-7. **Token Refresh** - Token refresh endpoint not implemented
+1. **Appointments API** - Schema created, endpoints deferred
+2. **Admin View Results Access Control** - Role-based access control not yet implemented
+3. **Email Verification** - No email verification flow
+4. **Password Reset** - No password reset mechanism
+5. **Logout Endpoint** - Firebase handles token expiration client-side
+6. **Token Refresh** - Token refresh endpoint not implemented
 
 ###  Current Constraints
 - **Firebase REST API Dependency** - Login endpoints depend on FIREBASE_API_KEY being set
@@ -299,10 +353,11 @@ NODE_ENV=development
 npm test
 ```
 
-### Run Auth Tests Only
+### Run Specific Route Tests
 ```bash
 npm test -- authRoutes.test.js
 npm test -- adminAuthRoutes.test.js
+npm test -- dentalImagesRoutes.test.js
 ```
 
 ### Manual API Testing
@@ -345,11 +400,10 @@ curl -X POST http://localhost:3000/api/admin/auth/signup \
 
 ## What's Next (Week 5)
 
-1. **Image Upload Endpoints** - Implement Cloudinary integration for dental images
-2. **Protected Routes** - Use auth middleware to protect admin and user endpoints
-3. **Appointments API** - Create endpoints for appointment management
-4. **Admin View Results** - Implement role-based access control for diagnosis results
-5. **Additional CRUD Endpoints** - Full API coverage for all resources
+1. **Protected Routes** - Use auth middleware to protect admin and user endpoints
+2. **Appointments API** - Create endpoints for appointment management
+3. **Admin View Results** - Implement role-based access control for diagnosis results
+4. **Additional CRUD Endpoints** - Full API coverage for all resources
 
 ---
 
@@ -358,11 +412,11 @@ curl -X POST http://localhost:3000/api/admin/auth/signup \
 This work encompasses all authentication infrastructure, schema updates, and testing for user/admin signup and login flows. No commits have been created yet - await user approval before committing.
 
 **Files Statistics:**
-- Created: 9 files
-- Modified: 6 files
-- Total Changes: 15 files
-- New Tests: 14
-- New API Endpoints: 4
+- Created: 14 files
+- Modified: 10 files
+- Total Changes: 24 files
+- New Tests: 18
+- New API Endpoints: 5
 
 ---
 

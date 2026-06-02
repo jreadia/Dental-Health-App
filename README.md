@@ -9,7 +9,7 @@ The application uses a microservice architecture on Render:
 1. **Node.js Backend** (main API server) - Handles authentication, data management, and orchestration
 2. **ML Inference Service** (teammate-built) - Separate endpoint for YOLOv8 model inference
 3. **Firebase** (external) - Authentication and database
-4. **Cloudinary** (external, TBD) - Image storage
+4. **Cloudinary** (external) - Image storage
 
 **Inference Flow**:
 1. User uploads dental image → Stored in Cloudinary
@@ -28,16 +28,19 @@ server/
 ├── server.js                           # Entry point to start the server
 │
 ├── config/
-│   └── config.js                       # Firebase Admin SDK initialization (uses env vars)
+│   ├── firebase.js                     # Firebase Admin SDK initialization (uses env vars)
+│   └── cloudinary.js                   # Cloudinary configuration (uses env vars)
 │
 ├── routes/                             # API route handlers
 │   ├── health.js                       # Health check endpoint
 │   ├── auth.js                         # User authentication (signup/login)
-│   └── adminAuth.js                    # Admin authentication (signup/login)
+│   ├── adminAuth.js                    # Admin authentication (signup/login)
+│   └── dentalImages.js                 # Image upload endpoints
 │
 ├── middleware/                         # Custom middleware for auth, error handling
-│   ├── auth.js                         # Firebase token verification middleware
-│   └── errorHandler.js                 # Centralized error handling middleware
+│   ├── token.js                        # Firebase token verification middleware
+│   ├── errorHandler.js                 # Centralized error handling middleware
+│   └── upload.js                       # Multer memory storage middleware
 │
 ├── schemas/                            # Data validation schemas (Zod)
 │   ├── userSchema.js                   # User signup, login, and update validation
@@ -62,7 +65,8 @@ server/
     ├── routes_tests/
     │   ├── healthRoute.test.js         # Health check endpoint tests
     │   ├── authRoutes.test.js          # User authentication routes tests
-    │   └── adminAuthRoutes.test.js     # Admin authentication routes tests
+    │   ├── adminAuthRoutes.test.js     # Admin authentication routes tests
+    │   └── dentalImagesRoutes.test.js  # Image upload routes tests
     └── schema_tests/
         ├── userService.test.js         # User schema validation tests
         ├── adminService.test.js        # Admin schema validation tests
@@ -77,7 +81,7 @@ server/
 ```sh
 npm install
 ```
-This installs: firebase-admin, firebase, dotenv, zod, cors, express, jest, and supertest.
+This installs: firebase-admin, firebase, dotenv, zod, cors, express, cloudinary, multer, jest, and supertest.
 
 ### 2. Firebase Credentials
 
@@ -101,6 +105,11 @@ FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
 FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 FIREBASE_APP_ID=your-app-id
+
+# Cloudinary Image Storage
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
 
 NODE_ENV=development
 PORT=3000
@@ -131,7 +140,7 @@ npm test -- middleware_tests/
 
 ## Testing
 
-### Test Suite (104 tests, all passing)
+### Test Suite (108 tests, all passing)
 
 **Schema Tests (97 tests):**
 - `userService.test.js` - 20 tests for user signup, login, and update validation
@@ -148,6 +157,7 @@ npm test -- middleware_tests/
 - `healthRoute.test.js` - Tests health check endpoint
 - `authRoutes.test.js` - Tests for user authentication validation and error handling
 - `adminAuthRoutes.test.js` - Tests for admin authentication validation and error handling
+- `dentalImagesRoutes.test.js` - Tests for image upload endpoints with Cloudinary mocking
 
 **Firebase Tests (2 tests):**
 - `firebaseConnection.test.js` - Verifies Firebase Admin SDK connection
@@ -236,6 +246,28 @@ Response (200):
 ### Admin Signup and Login
 Same as user authentication but at `/api/admin/auth/signup` and `/api/admin/auth/login`.
 
+## Image Uploads
+
+Images are uploaded directly to Cloudinary using an in-memory multer stream to avoid disk writes.
+
+```
+POST /api/dental-images/upload
+Authorization: Bearer <FIREBASE_ID_TOKEN>
+Content-Type: multipart/form-data
+
+image: (File)
+
+Response (201):
+{
+  "success": true,
+  "message": "Image uploaded successfully",
+  "data": {
+    "imageId": "123456789",
+    "imageUrl": "https://res.cloudinary.com/..."
+  }
+}
+```
+
 ## Architecture Guardrails
 
 - No local disk storage: Images handled as in-memory buffers, streamed to external storage
@@ -252,6 +284,7 @@ Same as user authentication but at `/api/admin/auth/signup` and `/api/admin/auth
 - Firebase Admin SDK 13.10.0 (Firestore, Auth)
 - Firebase Web SDK (client-side auth)
 - Zod 4.4.3 (data validation)
+- Cloudinary & Multer (image storage)
 - Jest 30.4 + Supertest 7.2 (testing)
 - YOLOv8 (via separate inference endpoint hosted on Render)
 
@@ -265,14 +298,14 @@ Same as user authentication but at `/api/admin/auth/signup` and `/api/admin/auth
 - Zod schemas for all data models
 - Service layer for CRUD operations
 - Firebase token verification middleware
-- Comprehensive test suite (104 tests)
+- Comprehensive test suite (108 tests)
 - Error handling middleware
+- Image upload endpoints (Cloudinary integration)
 
 ### Pending
-- Image upload endpoints (awaiting Cloudinary setup)
 - ML Inference endpoint integration (awaiting teammate's endpoint URL)
 - Roboflow API integration with Node.js (deferred to ML service)
-- Dental image CRUD endpoints
+- Dental image CRUD endpoints (view/delete)
 - Appointments API endpoints
 - Admin dashboard endpoints
 - Email verification flow
@@ -290,9 +323,8 @@ All environment variables must be set in the deployment platform, including the 
 
 ## Next Steps
 
-1. Complete image upload implementation (Cloudinary or Firebase Storage)
-2. Implement protected endpoints with auth middleware
-3. Integrate Roboflow API for diagnosis results
-4. Add appointments management endpoints
-5. Implement admin dashboard endpoints
+1. Implement protected endpoints with auth middleware for existing routes
+2. Integrate Roboflow API for diagnosis results
+3. Add appointments management endpoints
+4. Implement admin dashboard endpoints
 
