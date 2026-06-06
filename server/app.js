@@ -7,10 +7,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 // api routes
-import healthRoutes from './routes/health.js';
-import authRoutes from './routes/auth.js';
-import adminAuthRoutes from './routes/adminAuth.js';
-import dentalImagesRoutes from './routes/dentalImages.js';
+import healthRoutes from './routes/health.route.js';
+import userAuthRoutes from './routes/userAuth.route.js';
+import adminAuthRoutes from './routes/adminAuth.route.js';
+import dentalImagesRoutes from './routes/dentalImages.route.js';
 import errorHandler from './middleware/errorHandler.js';
 
 const app = express();
@@ -31,7 +31,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Routes
 app.use(healthRoutes);
-app.use(authRoutes);
+app.use(userAuthRoutes);
 app.use(adminAuthRoutes);
 app.use(dentalImagesRoutes);
 
