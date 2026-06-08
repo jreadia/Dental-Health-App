@@ -31,15 +31,6 @@ describe('Dental Image Schema Validation', () => {
       expect(result.success).toBe(false);
     });
 
-    test('should reject missing imageUrl', () => {
-      const invalidImage = {
-        userId: 'user-123',
-      };
-
-      const result = dentalImageCreateSchema.safeParse(invalidImage);
-      expect(result.success).toBe(false);
-    });
-
     test('should reject invalid URL format', () => {
       const invalidImage = {
         userId: 'user-123',

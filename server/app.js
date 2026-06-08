@@ -13,6 +13,9 @@ import adminAuthRoutes from './routes/adminAuth.route.js';
 import dentalImagesRoutes from './routes/dentalImages.route.js';
 import errorHandler from './middleware/errorHandler.js';
 
+// sample ml route for testing only
+import mockMLRoutes from './mocks/mockML.route.js';
+
 const app = express();
 
 // MOCK FRONTEND SETUP (SAFE TO REMOVE) 
@@ -34,6 +37,9 @@ app.use(healthRoutes);
 app.use(userAuthRoutes);
 app.use(adminAuthRoutes);
 app.use(dentalImagesRoutes);
+
+// sample ml route for testing only
+app.use(mockMLRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

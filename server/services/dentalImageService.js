@@ -5,7 +5,10 @@ const createDentalImage = async (imageId, imageData) => {
   try {
     const imageDoc = {
       userId: imageData.userId,
-      imageUrl: imageData.imageUrl,
+      imageUrl: imageData.originalImageUrl || imageData.imageUrl, // Fallback for backwards compatibility
+      originalImageUrl: imageData.originalImageUrl || null,
+      annotatedImageUrl: imageData.annotatedImageUrl || null,
+      mlResults: imageData.mlResults || null,
       uploadDate: new Date(imageData.uploadDate),
     };
 

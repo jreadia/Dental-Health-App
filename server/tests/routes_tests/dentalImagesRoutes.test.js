@@ -39,6 +39,20 @@ jest.unstable_mockModule('../../services/dentalImageService.js', () => ({
   createDentalImage: jest.fn().mockResolvedValue({ success: true, imageId: 'test1234' })
 }));
 
+// 4. Mock axios
+jest.unstable_mockModule('axios', () => ({
+  default: {
+    post: jest.fn().mockResolvedValue({
+      status: 200,
+      data: {
+        status: 'success',
+        annotated_image_base64: Buffer.from('fake annotated image').toString('base64'),
+        metadata: { boxes: [] }
+      }
+    })
+  }
+}));
+
 // Dynamically import app AFTER mocks are established
 const app = (await import('../../app.js')).default;
 const cloudinary = (await import('../../config/cloudinary.js')).default;
@@ -72,15 +86,19 @@ describe('Dental Images Routes', () => {
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.imageUrl).toBe('https://res.cloudinary.com/test-url.jpg');
+      expect(response.body.data.originalImageUrl).toBe('https://res.cloudinary.com/test-url.jpg');
+      expect(response.body.data.annotatedImageUrl).toBe('https://res.cloudinary.com/test-url.jpg');
       expect(response.body.data.imageId).toBe('test1234');
 
-      expect(cloudinary.uploader.upload_stream).toHaveBeenCalled();
+      // Now it's called twice (once for original, once for annotated)
+      expect(cloudinary.uploader.upload_stream).toHaveBeenCalledTimes(2);
 
       // Ensure the service was called with the correct mock data structure
       expect(createDentalImage).toHaveBeenCalledWith('test1234', expect.objectContaining({
         userId: 'test-uid',
-        imageUrl: 'https://res.cloudinary.com/test-url.jpg',
+        originalImageUrl: 'https://res.cloudinary.com/test-url.jpg',
+        annotatedImageUrl: 'https://res.cloudinary.com/test-url.jpg',
+        mlResults: { boxes: [] }
       }));
     });
 
@@ -102,7 +120,7 @@ describe('Dental Images Routes', () => {
         .attach('image', Buffer.from('fake image content'), 'test.jpg');
 
       expect(response.status).toBe(500);
-      expect(response.body.error).toBe('Failed to upload image to Cloudinary');
+      expect(response.body.error).toBe('Failed to process image and save data');
     });
 
     test('should return 500 when Firestore saving fails', async () => {
@@ -114,7 +132,7 @@ describe('Dental Images Routes', () => {
         .attach('image', Buffer.from('fake image content'), 'test.jpg');
 
       expect(response.status).toBe(500);
-      expect(response.body.error).toBe('Failed to save image data to database');
+      expect(response.body.error).toBe('Failed to process image and save data');
     });
   });
 });

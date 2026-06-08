@@ -206,6 +206,7 @@
 
   <h2>Response / Output</h2>
   <div class="output" id="output">Responses will appear here...</div>
+  <div id="image-preview" style="margin-top: 20px; display: flex; gap: 20px;"></div>
 </div>
 
 <script>
@@ -298,7 +299,9 @@
     formData.append('image', fileInput.files[0]);
 
     try {
-      document.getElementById('output').textContent = 'Uploading to Cloudinary...';
+      document.getElementById('output').textContent = 'Uploading to Cloudinary and processing via ML...';
+      document.getElementById('image-preview').innerHTML = ''; // Clear previous images
+      
       const response = await fetch('/api/dental-images/upload', {
         method: 'POST',
         headers: {
@@ -308,6 +311,20 @@
       });
       const data = await response.json();
       displayOutput({ status: response.status, ...data });
+      
+      // If the upload was successful and returned images, display them
+      if (data.data && data.data.originalImageUrl && data.data.annotatedImageUrl) {
+        document.getElementById('image-preview').innerHTML = `
+          <div style="flex: 1;">
+            <h3 style="color: #2c3e50; margin-top: 0;">Original Image</h3>
+            <img src="${data.data.originalImageUrl}" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          </div>
+          <div style="flex: 1;">
+            <h3 style="color: #2c3e50; margin-top: 0;">Annotated Image</h3>
+            <img src="${data.data.annotatedImageUrl}" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          </div>
+        `;
+      }
     } catch (err) {
       displayOutput({ error: err.message });
     }
