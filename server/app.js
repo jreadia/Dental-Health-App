@@ -1,0 +1,43 @@
+import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+
+// api routes
+import swaggerRoutes from './routes/swagger.route.js';
+import healthRoutes from './routes/health.route.js';
+import userAuthRoutes from './routes/userAuth.route.js';
+import adminAuthRoutes from './routes/adminAuth.route.js';
+import adminManagementRoutes from './routes/adminManagement.route.js';
+import adminUsersRoutes from './routes/adminUsers.route.js';
+import dentalImagesRoutes from './routes/dentalImages.route.js';
+import errorHandler from './middleware/errorHandler.js';
+
+// sample ml route for testing only
+import mockMLRoutes from './mocks/mockML.route.js';
+
+const app = express();
+
+
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use(cookieParser());
+
+// Routes
+app.use(swaggerRoutes);
+app.use(healthRoutes);
+app.use(userAuthRoutes);
+app.use(adminAuthRoutes);
+app.use(adminManagementRoutes);
+app.use(adminUsersRoutes);
+app.use(dentalImagesRoutes);
+
+// sample ml route for testing only
+app.use(mockMLRoutes);
+
+// Error handling middleware
+app.use(errorHandler);
+
+export default app;
