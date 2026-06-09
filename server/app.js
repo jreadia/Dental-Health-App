@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import corsOptions from './config/cors.js';
 
 // api routes
 import swaggerRoutes from './routes/swagger.route.js';
@@ -23,7 +24,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.set('trust proxy', 1); // Trust the first proxy (Render)
 app.use(globalLimiter);

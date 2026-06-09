@@ -148,6 +148,7 @@ When the server is running, navigate to `http://localhost:3000/api-docs` to view
 - **HTTP-Only Cookies**: JWT tokens are never exposed to client-side JavaScript.
 - **Two-Tier Middleware Protection**: `verifyToken` handles global authentication, while `verifyAdmin` strictly protects administrative endpoints via fast Firestore lookups.
 - **Rate Limiting**: Protects against brute-force attacks and API abuse using `express-rate-limit`. Global endpoints allow 100 requests per 15 minutes, while authentication routes are strictly limited to 5 requests per 5 minutes.
+- **Strict CORS Policy**: Disables wildcard origins. Dynamically allows requests from local development (`http://localhost:5173`), configured production environments via `FRONTEND_URL`, and any Vercel preview deployments.
 - **No Local Disk Storage**: Images are handled as in-memory buffers and streamed to Cloudinary to support free-tier PaaS deployments (Render).
 - **Zod Gateway**: All incoming payload data is strictly validated before interacting with Firestore.
 - **Database Optimization**: ML Results are embedded directly inside `dental_images` documents to drastically reduce Firestore read/write operations.
