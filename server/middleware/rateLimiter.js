@@ -1,6 +1,6 @@
 import rateLimit from 'express-rate-limit';
 
-const skipIfTest = (req, res) => process.env.NODE_ENV === 'test';
+const skipIfTest = () => process.env.NODE_ENV === 'test';
 
 // Global rate limiter for standard API requests
 export const globalLimiter = rateLimit({
