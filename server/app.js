@@ -11,6 +11,7 @@ import adminManagementRoutes from './routes/adminManagement.route.js';
 import adminUsersRoutes from './routes/adminUsers.route.js';
 import dentalImagesRoutes from './routes/dentalImages.route.js';
 import errorHandler from './middleware/errorHandler.js';
+import { globalLimiter } from './middleware/rateLimiter.js';
 
 // sample ml route for testing only
 import mockMLRoutes from './mocks/mockML.route.js';
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(cookieParser());
+app.use(globalLimiter);
 
 // Routes
 app.use(swaggerRoutes);
