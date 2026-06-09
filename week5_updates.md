@@ -1,13 +1,34 @@
-# Week 5 Updates: ML API Integration & Gatekeeper Architecture
+# Week 5 Updates: ML API Integration, Security & REST API Refactor
 
 ## Overview
-This week, we successfully integrated the initial architecture for the machine learning (YOLOv8n) gatekeeper. The system is designed to intercept user image uploads, forward them to the ML model, and then upload both the original and annotated images to Cloudinary while saving all metadata to Firestore in a single write. 
-
-To test this without the actual ML model being finished, a local "Mock ML" route was also implemented.
+This document serves as a comprehensive log of all recent architectural changes, including the initial machine learning (YOLOv8n) gatekeeper integration, the transition to secure HTTP-only cookies, full REST API standardization, and the implementation of complete Admin and User management routes.
 
 ---
 
-## Changed Files & Detailed Modifications
+## 1. Security, REST API Refactor & Admin Features (Latest Updates)
+
+### Security & Authentication Migration
+- **HTTP-Only Cookies**: Transitioned from sending the Firebase JWT token in the JSON response body to automatically setting it as an `httpOnly` cookie upon login. This vastly improves security against XSS attacks.
+- **New Dependency**: Installed `cookie-parser` to handle incoming cookies.
+- **Middleware Update**: Updated `server/middleware/token.js` to extract the JWT directly from `req.cookies.token`, falling back to the `Authorization` header only if the cookie is missing.
+- **Logout Endpoints**: Created `POST /api/v1/auth/users/logout` and `POST /api/v1/auth/admins/logout` which securely clear the token cookie from the client's browser.
+
+### Strict REST API Route Refactor
+We undertook a comprehensive refactor to ensure all API routes adhere to strict REST naming conventions using the `/api/v1/` namespace:
+- **Authentication**: `POST /api/v1/auth/users/register`, `/api/v1/auth/users/login`, `/api/v1/auth/users/logout` (and equivalent admin routes under `/api/v1/auth/admins/`).
+- **Dental Images (User)**: `POST /api/v1/dental-images` (Upload) and `GET /api/v1/dental-images` (Fetch authenticated user's history).
+- **Admin Management**: `GET`, `PUT`, `DELETE` under `/api/v1/admins`.
+- **User Management (Admin View)**: `GET /api/v1/users` and `GET /api/v1/users/:userId/dental-images`.
+
+### Feature Implementations & Testing
+- **Efficiency Optimization**: Instead of maintaining a separate `diagnosis_results` collection, we are embedding the ML bounding box data directly inside the `dental_images` documents via the `mlResults` field. This significantly cuts down on Firestore read/write operations.
+- **Admin Verification Middleware**: Implemented a `verifyAdmin` middleware to strictly enforce that the requester has a valid Admin document in Firestore.
+- **Testing**: 110/110 tests are passing. All tests were updated to hit the new `/api/v1/` URIs.
+- **Linting**: Fixed all ESLint warnings for a fully clean codebase.
+
+---
+
+## 2. ML Gatekeeper Architecture & Changed Files
 
 ### 1. `package.json`
 - **Action**: Installed new dependencies.
@@ -25,11 +46,7 @@ To test this without the actual ML model being finished, a local "Mock ML" route
 - **Action**: Created a local testing route.
 - **Details**: Built a dummy endpoint (`/api/mock-ml/predict`) that simulates your teammate's YOLOv8n FastAPI server. It accepts an image upload and successfully returns the same image as a `base64` string alongside dummy bounding box JSON metadata specifically tailored for **calculus** detection.
 
-### 5. `server/app.js`
-- **Action**: Registered the mock route.
-- **Details**: Imported `mockMLRoutes` from `./mocks/mockML.route.js` and registered it with `app.use(mockMLRoutes)`.
-
-### 6. `server/routes/dentalImages.route.js`
+### 5. `server/routes/dentalImages.route.js`
 - **Action**: Heavily modified the upload gatekeeper logic.
 - **Details**: 
   - Instead of streaming directly to Cloudinary, the file is intercepted and appended to a `FormData` object.
@@ -38,43 +55,24 @@ To test this without the actual ML model being finished, a local "Mock ML" route
   - **Both** the original image buffer and annotated image buffer are uploaded to Cloudinary simultaneously using `Promise.all()`.
   - Both resulting URLs and the ML metadata are finally saved to Firestore.
 
-### 7. `server/tests/routes_tests/dentalImagesRoutes.test.js`
-- **Action**: Fixed failing tests.
-- **Details**: Added a mock for `axios` using `jest.unstable_mockModule` so that the local tests do not actually attempt to hit the network. Updated the assertions to expect 2 Cloudinary uploads and expect the new `originalImageUrl` and `annotatedImageUrl` fields in the response.
-
-### 8. `server/tests/schema_tests/dentalImageSchema.test.js`
-- **Action**: Fixed failing tests.
-- **Details**: Removed the `should reject missing imageUrl` test because the `imageUrl` field is now safely marked as `.optional()` in the schema.
-
-### 9. `public/index.html`
+### 6. `public/index.html`
 - **Action**: Enhanced the mock frontend.
-- **Details**: Updated the `handleImageUpload` function to automatically detect if the API returns `originalImageUrl` and `annotatedImageUrl`. If present, it visually renders both images side-by-side directly beneath the JSON response output box, eliminating the need to use Postman to visually verify the upload.
+- **Details**: Updated the `handleImageUpload` function to automatically detect if the API returns `originalImageUrl` and `annotatedImageUrl`. If present, it visually renders both images side-by-side directly beneath the JSON response output box.
 
 ---
 
-## Recent Schema & Code Quality Updates
+## 3. Schema & Code Quality Updates
 
-### 10. `schema.dbml`
+### 1. `schema.dbml`
 - **Action**: Updated database schemas.
 - **Details**: 
   - Changed `plaque_detected` and `plaque_level` to `calculus_detected` and `calculus_amount` (int) in `diagnosis_results`. Removed `confidence_score`.
   - Added `phone_number`, `address`, and `birthday` to the `users` table.
 
-### 11. Linting & Code Quality
-- **Action**: Installed and configured ESLint.
-- **Details**: Created `eslint.config.js` and added a `lint` script to `package.json` to enforce code quality. All code passes linting.
-
-### 12. Diagnosis Result Refactoring
+### 2. Diagnosis Result Refactoring
 - **Action**: Updated schemas, services, and tests.
 - **Details**: Refactored `diagnosisResultSchema.js`, `diagnosisResultService.js`, and `dentalImageService.js` to use `calculusAmount` (integer validation) instead of string enums. Fully rewrote `diagnosisResultSchema.test.js` to assert number boundaries.
 
-### 13. User Registration Fields
+### 3. User Registration Fields
 - **Action**: Added new demographic fields.
 - **Details**: Updated `userSchema.js`, `userService.js`, and `userAuth.route.js` to require `phoneNumber`, `address`, and `birthday` during user signup. Validated with updated tests.
-
----
-
-## How to Revert
-If you need to revert these changes, you can:
-1. Run `git checkout .` if you have not committed yet, OR find the previous commit and run `git revert HEAD` or `git reset --hard HEAD~1` depending on your git history.
-2. Manually undo the changes outlined above, specifically restoring `dentalImages.route.js` to its original direct-Cloudinary-upload state and deleting the `server/mocks/` directory.
