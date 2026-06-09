@@ -26,7 +26,7 @@ router.post('/api/dental-images/upload', verifyFirebaseToken, upload.single('ima
       contentType: req.file.mimetype || 'image/jpeg',
     });
 
-    // We use the mock ML API for now. Change this URL to your teammate's Render URL when ready.
+    // TODO: Change this URL to your teammate's Render URL when ready.
     const port = process.env.PORT || 3000;
     const mlApiUrl = `http://localhost:${port}/api/mock-ml/predict`;
 
