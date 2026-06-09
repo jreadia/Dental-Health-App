@@ -1,11 +1,12 @@
 import express from 'express';
 import { userSignupSchema, userLoginSchema } from '../schemas/userSchema.js';
 import { signupUser, getUser } from '../services/userService.js';
+import { authLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
 // POST /api/v1/auth/users/register - User signup
-router.post('/api/v1/auth/users/register', async (req, res) => {
+router.post('/api/v1/auth/users/register', authLimiter, async (req, res) => {
   try {
     const validated = userSignupSchema.safeParse(req.body);
     if (!validated.success) {
@@ -48,7 +49,7 @@ router.post('/api/v1/auth/users/register', async (req, res) => {
 });
 
 // POST /api/v1/auth/users/login - User login
-router.post('/api/v1/auth/users/login', async (req, res) => {
+router.post('/api/v1/auth/users/login', authLimiter, async (req, res) => {
   try {
     const validated = userLoginSchema.safeParse(req.body);
     if (!validated.success) {

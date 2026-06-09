@@ -1,11 +1,12 @@
 import express from 'express';
 import { adminSignupSchema, adminLoginSchema } from '../schemas/adminSchema.js';
 import { signupAdmin, getAdmin } from '../services/adminService.js';
+import { authLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
 // POST /api/v1/auth/admins/register - Admin signup
-router.post('/api/v1/auth/admins/register', async (req, res) => {
+router.post('/api/v1/auth/admins/register', authLimiter, async (req, res) => {
   try {
     const validated = adminSignupSchema.safeParse(req.body);
     if (!validated.success) {
@@ -45,7 +46,7 @@ router.post('/api/v1/auth/admins/register', async (req, res) => {
 });
 
 // POST /api/v1/auth/admins/login - Admin login
-router.post('/api/v1/auth/admins/login', async (req, res) => {
+router.post('/api/v1/auth/admins/login', authLimiter, async (req, res) => {
   try {
     const validated = adminLoginSchema.safeParse(req.body);
     if (!validated.success) {
