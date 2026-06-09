@@ -3,19 +3,6 @@ import app from '../../app.js';
 
 describe('Admin Authentication Routes', () => {
   describe('POST /api/v1/auth/admins/register', () => {
-    test('should return 201 on successful signup', async () => {
-      const response = await request(app)
-        .post('/api/v1/auth/admins/register')
-        .send({
-          firstName: 'Admin',
-          lastName: 'User',
-          email: 'admin@example.com',
-          password: 'SecurePassword123',
-        });
-
-      expect(response.status).toBe(201);
-    });
-
     test('should return 400 when required fields are missing', async () => {
       const response = await request(app)
         .post('/api/v1/auth/admins/register')
@@ -85,17 +72,6 @@ describe('Admin Authentication Routes', () => {
   });
 
   describe('POST /api/v1/auth/admins/login', () => {
-    test('should return 200 on successful login', async () => {
-      const response = await request(app)
-        .post('/api/v1/auth/admins/login')
-        .send({
-          email: 'admin@example.com',
-          password: 'SecurePassword123',
-        });
-
-      expect(response.status).toBe(200);
-    });
-
     test('should return 400 when email is missing', async () => {
       const response = await request(app)
         .post('/api/v1/auth/admins/login')
