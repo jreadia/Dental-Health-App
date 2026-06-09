@@ -3,7 +3,7 @@
   "info": {
     "title": "Dental Health App API",
     "version": "1.0.0",
-    "description": "API documentation for the Dental Health App gatekeeper and management backend."
+    "description": "API documentation for the Dental Health App gatekeeper and management backend. Protected by global (100 req/15 min) and auth-specific (5 req/5 min) rate limits."
   },
   "servers": [
     {
@@ -55,7 +55,8 @@
         },
         "responses": {
           "201": { "description": "User successfully registered" },
-          "400": { "description": "Validation error" }
+          "400": { "description": "Validation error" },
+          "429": { "description": "Too many requests. Rate limit exceeded." }
         }
       }
     },
@@ -83,7 +84,8 @@
             "description": "Successfully authenticated. Sets httpOnly 'token' cookie."
           },
           "400": { "description": "Validation error" },
-          "401": { "description": "Invalid credentials" }
+          "401": { "description": "Invalid credentials" },
+          "429": { "description": "Too many login attempts. Rate limit exceeded." }
         }
       }
     },
@@ -120,7 +122,8 @@
         },
         "responses": {
           "201": { "description": "Admin successfully registered" },
-          "400": { "description": "Validation error" }
+          "400": { "description": "Validation error" },
+          "429": { "description": "Too many requests. Rate limit exceeded." }
         }
       }
     },
@@ -148,7 +151,8 @@
             "description": "Successfully authenticated. Sets httpOnly 'token' cookie."
           },
           "400": { "description": "Validation error" },
-          "401": { "description": "Invalid credentials" }
+          "401": { "description": "Invalid credentials" },
+          "429": { "description": "Too many login attempts. Rate limit exceeded." }
         }
       }
     },
