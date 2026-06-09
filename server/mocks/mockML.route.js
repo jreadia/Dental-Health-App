@@ -20,6 +20,8 @@ router.post('/api/mock-ml/predict', upload.single('image'), (req, res) => {
     status: 'success',
     annotated_image_base64: base64Image,
     metadata: {
+      calculusDetected: true,
+      calculusAmount: 15,
       boxes: [
         { x: 100, y: 150, width: 45, height: 60, label: 'calculus', confidence: 0.88 },
         { x: 200, y: 100, width: 30, height: 30, label: 'calculus', confidence: 0.75 }
