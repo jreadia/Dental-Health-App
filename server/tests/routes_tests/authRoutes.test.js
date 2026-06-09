@@ -2,10 +2,10 @@ import request from 'supertest';
 import app from '../../app.js';
 
 describe('User Authentication Routes', () => {
-  describe('POST /api/auth/signup', () => {
+  describe('POST /api/v1/auth/users/register', () => {
     test('should return 400 when required fields are missing', async () => {
       const response = await request(app)
-        .post('/api/auth/signup')
+        .post('/api/v1/auth/users/register')
         .send({
           firstName: 'John',
           email: 'john@example.com',
@@ -19,7 +19,7 @@ describe('User Authentication Routes', () => {
 
     test('should return 400 when email is invalid', async () => {
       const response = await request(app)
-        .post('/api/auth/signup')
+        .post('/api/v1/auth/users/register')
         .send({
           firstName: 'John',
           lastName: 'Doe',
@@ -36,7 +36,7 @@ describe('User Authentication Routes', () => {
 
     test('should return 400 when password is too short', async () => {
       const response = await request(app)
-        .post('/api/auth/signup')
+        .post('/api/v1/auth/users/register')
         .send({
           firstName: 'John',
           lastName: 'Doe',
@@ -53,7 +53,7 @@ describe('User Authentication Routes', () => {
 
     test('should return 400 when firstName is missing', async () => {
       const response = await request(app)
-        .post('/api/auth/signup')
+        .post('/api/v1/auth/users/register')
         .send({
           lastName: 'Doe',
           email: 'john@example.com',
@@ -69,7 +69,7 @@ describe('User Authentication Routes', () => {
 
     test('should return 400 when lastName is missing', async () => {
       const response = await request(app)
-        .post('/api/auth/signup')
+        .post('/api/v1/auth/users/register')
         .send({
           firstName: 'John',
           email: 'john@example.com',
@@ -84,10 +84,10 @@ describe('User Authentication Routes', () => {
     });
   });
 
-  describe('POST /api/auth/login', () => {
+  describe('POST /api/v1/auth/users/login', () => {
     test('should return 400 when email is missing', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post('/api/v1/auth/users/login')
         .send({
           password: 'SecurePassword123',
         });
@@ -98,7 +98,7 @@ describe('User Authentication Routes', () => {
 
     test('should return 400 when password is missing', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post('/api/v1/auth/users/login')
         .send({
           email: 'john@example.com',
         });
@@ -109,7 +109,7 @@ describe('User Authentication Routes', () => {
 
     test('should return 400 when email format is invalid', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post('/api/v1/auth/users/login')
         .send({
           email: 'invalid-email',
           password: 'SecurePassword123',
@@ -121,7 +121,7 @@ describe('User Authentication Routes', () => {
 
     test('should return 400 or 500 for login attempt without Firebase API key', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post('/api/v1/auth/users/login')
         .send({
           email: 'test@example.com',
           password: 'TestPassword123',

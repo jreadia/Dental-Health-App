@@ -2,10 +2,23 @@ import request from 'supertest';
 import app from '../../app.js';
 
 describe('Admin Authentication Routes', () => {
-  describe('POST /api/admin/auth/signup', () => {
+  describe('POST /api/v1/auth/admins/register', () => {
+    test('should return 201 on successful signup', async () => {
+      const response = await request(app)
+        .post('/api/v1/auth/admins/register')
+        .send({
+          firstName: 'Admin',
+          lastName: 'User',
+          email: 'admin@example.com',
+          password: 'SecurePassword123',
+        });
+
+      expect(response.status).toBe(201);
+    });
+
     test('should return 400 when required fields are missing', async () => {
       const response = await request(app)
-        .post('/api/admin/auth/signup')
+        .post('/api/v1/auth/admins/register')
         .send({
           firstName: 'Admin',
           email: 'admin@example.com',
@@ -18,7 +31,7 @@ describe('Admin Authentication Routes', () => {
 
     test('should return 400 when email is invalid', async () => {
       const response = await request(app)
-        .post('/api/admin/auth/signup')
+        .post('/api/v1/auth/admins/register')
         .send({
           firstName: 'Admin',
           lastName: 'User',
@@ -32,7 +45,7 @@ describe('Admin Authentication Routes', () => {
 
     test('should return 400 when password is too short', async () => {
       const response = await request(app)
-        .post('/api/admin/auth/signup')
+        .post('/api/v1/auth/admins/register')
         .send({
           firstName: 'Admin',
           lastName: 'User',
@@ -46,7 +59,7 @@ describe('Admin Authentication Routes', () => {
 
     test('should return 400 when firstName is missing', async () => {
       const response = await request(app)
-        .post('/api/admin/auth/signup')
+        .post('/api/v1/auth/admins/register')
         .send({
           lastName: 'User',
           email: 'admin@example.com',
@@ -59,7 +72,7 @@ describe('Admin Authentication Routes', () => {
 
     test('should return 400 when lastName is missing', async () => {
       const response = await request(app)
-        .post('/api/admin/auth/signup')
+        .post('/api/v1/auth/admins/register')
         .send({
           firstName: 'Admin',
           email: 'admin@example.com',
@@ -71,10 +84,21 @@ describe('Admin Authentication Routes', () => {
     });
   });
 
-  describe('POST /api/admin/auth/login', () => {
+  describe('POST /api/v1/auth/admins/login', () => {
+    test('should return 200 on successful login', async () => {
+      const response = await request(app)
+        .post('/api/v1/auth/admins/login')
+        .send({
+          email: 'admin@example.com',
+          password: 'SecurePassword123',
+        });
+
+      expect(response.status).toBe(200);
+    });
+
     test('should return 400 when email is missing', async () => {
       const response = await request(app)
-        .post('/api/admin/auth/login')
+        .post('/api/v1/auth/admins/login')
         .send({
           password: 'SecurePassword123',
         });
@@ -85,7 +109,7 @@ describe('Admin Authentication Routes', () => {
 
     test('should return 400 when password is missing', async () => {
       const response = await request(app)
-        .post('/api/admin/auth/login')
+        .post('/api/v1/auth/admins/login')
         .send({
           email: 'admin@example.com',
         });
@@ -96,7 +120,7 @@ describe('Admin Authentication Routes', () => {
 
     test('should return 400 when email format is invalid', async () => {
       const response = await request(app)
-        .post('/api/admin/auth/login')
+        .post('/api/v1/auth/admins/login')
         .send({
           email: 'invalid-email',
           password: 'SecurePassword123',
@@ -108,7 +132,7 @@ describe('Admin Authentication Routes', () => {
 
     test('should return 400 or 500 for login attempt without Firebase API key', async () => {
       const response = await request(app)
-        .post('/api/admin/auth/login')
+        .post('/api/v1/auth/admins/login')
         .send({
           email: 'admin@example.com',
           password: 'TestPassword123',

@@ -4,8 +4,8 @@ import { signupUser, getUser } from '../services/userService.js';
 
 const router = express.Router();
 
-// POST /api/auth/signup - User signup
-router.post('/api/auth/signup', async (req, res) => {
+// POST /api/v1/auth/users/register - User signup
+router.post('/api/v1/auth/users/register', async (req, res) => {
   try {
     const validated = userSignupSchema.safeParse(req.body);
     if (!validated.success) {
@@ -47,8 +47,8 @@ router.post('/api/auth/signup', async (req, res) => {
   }
 });
 
-// POST /api/auth/login - User login
-router.post('/api/auth/login', async (req, res) => {
+// POST /api/v1/auth/users/login - User login
+router.post('/api/v1/auth/users/login', async (req, res) => {
   try {
     const validated = userLoginSchema.safeParse(req.body);
     if (!validated.success) {
@@ -96,10 +96,17 @@ router.post('/api/auth/login', async (req, res) => {
     // Fetch user profile from Firestore
     const userProfile = await getUser(uid);
 
+    // Set HTTP-only cookie
+    res.cookie('token', idToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 3600000 // 1 hour
+    });
+
     return res.status(200).json({
       success: true,
       message: 'Login successful',
-      token: idToken,
       user: {
         uid,
         firstName: userProfile.firstName,
@@ -113,6 +120,12 @@ router.post('/api/auth/login', async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: 'Login failed', details: error.message });
   }
+});
+
+// POST /api/v1/auth/users/logout - User logout
+router.post('/api/v1/auth/users/logout', (req, res) => {
+  res.clearCookie('token');
+  return res.status(200).json({ success: true, message: 'Logged out successfully' });
 });
 
 export default router;

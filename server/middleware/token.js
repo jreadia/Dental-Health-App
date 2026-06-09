@@ -2,13 +2,18 @@ import { auth } from '../config/firebase.js';
 
 const verifyFirebaseToken = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
+    let token = req.cookies?.token;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Missing or invalid authorization header' });
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
     }
 
-    const token = authHeader.substring(7);
+    if (!token) {
+      return res.status(401).json({ error: 'Missing authentication token' });
+    }
 
     try {
       const decodedToken = await auth.verifyIdToken(token);

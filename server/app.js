@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 // MOCK FRONTEND SETUP (SAFE TO REMOVE)
 // These imports are only required to serve the local public/ directory.
@@ -10,6 +11,8 @@ import { fileURLToPath } from 'url';
 import healthRoutes from './routes/health.route.js';
 import userAuthRoutes from './routes/userAuth.route.js';
 import adminAuthRoutes from './routes/adminAuth.route.js';
+import adminManagementRoutes from './routes/adminManagement.route.js';
+import adminUsersRoutes from './routes/adminUsers.route.js';
 import dentalImagesRoutes from './routes/dentalImages.route.js';
 import errorHandler from './middleware/errorHandler.js';
 
@@ -27,6 +30,7 @@ const __dirname = path.dirname(__filename);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(cookieParser());
 
 // MOCK FRONTEND SETUP (SAFE TO REMOVE)
 // Serves your mock HTML/JS files. Remove this if the backend is strictly an API.
@@ -36,6 +40,8 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use(healthRoutes);
 app.use(userAuthRoutes);
 app.use(adminAuthRoutes);
+app.use(adminManagementRoutes);
+app.use(adminUsersRoutes);
 app.use(dentalImagesRoutes);
 
 // sample ml route for testing only

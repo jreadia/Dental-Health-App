@@ -52,6 +52,20 @@ const getUser = async (userId) => {
   }
 };
 
+// Get all users
+const getAllUsers = async () => {
+  try {
+    const snapshot = await db.collection('users').get();
+    const users = [];
+    snapshot.forEach((doc) => {
+      users.push({ userId: doc.id, ...doc.data() });
+    });
+    return users;
+  } catch (error) {
+    throw new Error(`Failed to retrieve users: ${error.message}`, { cause: error });
+  }
+};
+
 // Update user
 const updateUser = async (userId, userData) => {
   try {
@@ -80,6 +94,7 @@ const deleteUser = async (userId) => {
 export {
   signupUser,
   getUser,
+  getAllUsers,
   updateUser,
   deleteUser,
 };

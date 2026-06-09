@@ -4,8 +4,8 @@ import { signupAdmin, getAdmin } from '../services/adminService.js';
 
 const router = express.Router();
 
-// POST /api/admin/auth/signup - Admin signup
-router.post('/api/admin/auth/signup', async (req, res) => {
+// POST /api/v1/auth/admins/register - Admin signup
+router.post('/api/v1/auth/admins/register', async (req, res) => {
   try {
     const validated = adminSignupSchema.safeParse(req.body);
     if (!validated.success) {
@@ -44,8 +44,8 @@ router.post('/api/admin/auth/signup', async (req, res) => {
   }
 });
 
-// POST /api/admin/auth/login - Admin login
-router.post('/api/admin/auth/login', async (req, res) => {
+// POST /api/v1/auth/admins/login - Admin login
+router.post('/api/v1/auth/admins/login', async (req, res) => {
   try {
     const validated = adminLoginSchema.safeParse(req.body);
     if (!validated.success) {
@@ -93,10 +93,17 @@ router.post('/api/admin/auth/login', async (req, res) => {
     // Fetch admin profile from Firestore
     const adminProfile = await getAdmin(uid);
 
+    // Set HTTP-only cookie
+    res.cookie('token', idToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 3600000 // 1 hour
+    });
+
     return res.status(200).json({
       success: true,
       message: 'Login successful',
-      token: idToken,
       admin: {
         uid,
         firstName: adminProfile.firstName,
@@ -107,6 +114,12 @@ router.post('/api/admin/auth/login', async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: 'Login failed', details: error.message });
   }
+});
+
+// POST /api/v1/auth/admins/logout - Admin logout
+router.post('/api/v1/auth/admins/logout', (req, res) => {
+  res.clearCookie('token');
+  return res.status(200).json({ success: true, message: 'Logged out successfully' });
 });
 
 export default router;

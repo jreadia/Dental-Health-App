@@ -230,7 +230,7 @@
 
   async function handleSignup(e, type) {
     e.preventDefault();
-    const endpoint = type === 'admin' ? '/api/admin/auth/signup' : '/api/auth/signup';
+    const endpoint = type === 'admin' ? '/api/v1/auth/admins/register' : '/api/v1/auth/users/register';
     
     const body = {
       firstName: document.getElementById(`${type}SignupFirst`).value,
@@ -255,7 +255,7 @@
 
   async function handleLogin(e, type) {
     e.preventDefault();
-    const endpoint = type === 'admin' ? '/api/admin/auth/login' : '/api/auth/login';
+    const endpoint = type === 'admin' ? '/api/v1/auth/admins/login' : '/api/v1/auth/users/login';
     
     const body = {
       email: document.getElementById(`${type}LoginEmail`).value,
@@ -302,7 +302,7 @@
       document.getElementById('output').textContent = 'Uploading to Cloudinary and processing via ML...';
       document.getElementById('image-preview').innerHTML = ''; // Clear previous images
       
-      const response = await fetch('/api/dental-images/upload', {
+      const response = await fetch('/api/v1/dental-images', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

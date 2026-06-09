@@ -2,15 +2,15 @@ import express from 'express';
 import upload from '../middleware/upload.js';
 import verifyFirebaseToken from '../middleware/token.js';
 import cloudinary from '../config/cloudinary.js';
-import { createDentalImage } from '../services/dentalImageService.js';
+import { createDentalImage, getUserImages } from '../services/dentalImageService.js';
 import { dentalImageCreateSchema } from '../schemas/dentalImageSchema.js';
 import axios from 'axios';
 import FormData from 'form-data';
 
 const router = express.Router();
 
-// POST /api/dental-images/upload - Upload an image and save to Firestore
-router.post('/api/dental-images/upload', verifyFirebaseToken, upload.single('image'), async (req, res) => {
+// POST /api/v1/dental-images - Upload image (Requires Authentication)
+router.post('/api/v1/dental-images', verifyFirebaseToken, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No image file provided' });
@@ -115,6 +115,18 @@ router.post('/api/dental-images/upload', verifyFirebaseToken, upload.single('ima
   } catch (error) {
     console.error('Upload route error:', error);
     return res.status(500).json({ error: 'An unexpected error occurred during upload' });
+  }
+});
+
+// GET /api/v1/dental-images - Get user's image history
+router.get('/api/v1/dental-images', verifyFirebaseToken, async (req, res) => {
+  try {
+    const userId = req.user.uid;
+    const images = await getUserImages(userId);
+    return res.status(200).json({ success: true, data: images });
+  } catch (error) {
+    console.error('Fetch history error:', error);
+    return res.status(500).json({ error: 'Failed to retrieve history' });
   }
 });
 

@@ -36,7 +36,8 @@ jest.unstable_mockModule('../../config/cloudinary.js', () => ({
 
 // 3. Mock dentalImageService and schema
 jest.unstable_mockModule('../../services/dentalImageService.js', () => ({
-  createDentalImage: jest.fn().mockResolvedValue({ success: true, imageId: 'test1234' })
+  createDentalImage: jest.fn().mockResolvedValue({ success: true, imageId: 'test1234' }),
+  getUserImages: jest.fn().mockResolvedValue([])
 }));
 
 // 4. Mock axios
@@ -69,10 +70,10 @@ describe('Dental Images Routes', () => {
     console.error.mockRestore();
   });
 
-  describe('POST /api/dental-images/upload', () => {
+  describe('POST /api/v1/dental-images', () => {
     test('should return 400 when no image is provided', async () => {
       const response = await request(app)
-        .post('/api/dental-images/upload');
+        .post('/api/v1/dental-images');
       // No .attach() call, meaning no file is sent
 
       expect(response.status).toBe(400);
@@ -81,7 +82,7 @@ describe('Dental Images Routes', () => {
 
     test('should upload image and return 201 on success', async () => {
       const response = await request(app)
-        .post('/api/dental-images/upload')
+        .post('/api/v1/dental-images')
         .attach('image', Buffer.from('fake image content'), 'test.jpg');
 
       expect(response.status).toBe(201);
@@ -116,7 +117,7 @@ describe('Dental Images Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/dental-images/upload')
+        .post('/api/v1/dental-images')
         .attach('image', Buffer.from('fake image content'), 'test.jpg');
 
       expect(response.status).toBe(500);
@@ -128,7 +129,7 @@ describe('Dental Images Routes', () => {
       createDentalImage.mockRejectedValueOnce(new Error('Mock Database error'));
 
       const response = await request(app)
-        .post('/api/dental-images/upload')
+        .post('/api/v1/dental-images')
         .attach('image', Buffer.from('fake image content'), 'test.jpg');
 
       expect(response.status).toBe(500);

@@ -30,7 +30,7 @@ describe('verifyFirebaseToken Middleware', () => {
     await verifyFirebaseToken(mockReq, mockRes, mockNext);
 
     expect(mockRes.status).toHaveBeenCalledWith(401);
-    expect(mockRes.json).toHaveBeenCalledWith({ error: 'Missing or invalid authorization header' });
+    expect(mockRes.json).toHaveBeenCalledWith({ error: 'Missing authentication token' });
     expect(mockNext).not.toHaveBeenCalled();
   });
 
@@ -40,7 +40,7 @@ describe('verifyFirebaseToken Middleware', () => {
     await verifyFirebaseToken(mockReq, mockRes, mockNext);
 
     expect(mockRes.status).toHaveBeenCalledWith(401);
-    expect(mockRes.json).toHaveBeenCalledWith({ error: 'Missing or invalid authorization header' });
+    expect(mockRes.json).toHaveBeenCalledWith({ error: 'Missing authentication token' });
     expect(mockNext).not.toHaveBeenCalled();
   });
 
