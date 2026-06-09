@@ -1,5 +1,7 @@
 import rateLimit from 'express-rate-limit';
 
+const skipIfTest = (req, res) => process.env.NODE_ENV === 'test';
+
 // Global rate limiter for standard API requests
 export const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -7,6 +9,7 @@ export const globalLimiter = rateLimit({
   message: 'Too many requests from this IP, please try again after 15 minutes',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipIfTest,
 });
 
 // Stricter rate limiter for authentication routes
@@ -16,4 +19,5 @@ export const authLimiter = rateLimit({
   message: 'Too many login attempts from this IP, please try again after 5 minutes',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipIfTest,
 });
