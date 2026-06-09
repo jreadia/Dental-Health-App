@@ -12,6 +12,7 @@ This document serves as a comprehensive log of all recent architectural changes,
 - **New Dependency**: Installed `cookie-parser` to handle incoming cookies.
 - **Middleware Update**: Updated `server/middleware/token.js` to extract the JWT directly from `req.cookies.token`, falling back to the `Authorization` header only if the cookie is missing.
 - **Logout Endpoints**: Created `POST /api/v1/auth/users/logout` and `POST /api/v1/auth/admins/logout` which securely clear the token cookie from the client's browser.
+- **Strict CORS Policy**: Removed wildcard (`*`) CORS allowing dynamic origins. Configured central `server/config/cors.js` to accept `http://localhost:5173`, the `FRONTEND_URL` env variable, and `.vercel.app` Vercel domains.
 
 ### Strict REST API Route Refactor
 We undertook a comprehensive refactor to ensure all API routes adhere to strict REST naming conventions using the `/api/v1/` namespace:
