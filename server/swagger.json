@@ -22,7 +22,8 @@
     }
   },
   "tags": [
-    { "name": "Authentication", "description": "User and Admin authentication endpoints" },
+    { "name": "User Authentication", "description": "User authentication endpoints" },
+    { "name": "Admin Authentication", "description": "Admin authentication endpoints" },
     { "name": "Dental Images", "description": "Endpoints for processing ML images and fetching history" },
     { "name": "Admin Management", "description": "Endpoints to manage admin accounts" },
     { "name": "User Management", "description": "Endpoints to manage user accounts and view their data" }
@@ -30,7 +31,7 @@
   "paths": {
     "/api/v1/auth/users/register": {
       "post": {
-        "tags": ["Authentication"],
+        "tags": ["User Authentication"],
         "summary": "Register a new user",
         "requestBody": {
           "required": true,
@@ -60,7 +61,7 @@
     },
     "/api/v1/auth/users/login": {
       "post": {
-        "tags": ["Authentication"],
+        "tags": ["User Authentication"],
         "summary": "Login as a user",
         "requestBody": {
           "required": true,
@@ -88,7 +89,7 @@
     },
     "/api/v1/auth/users/logout": {
       "post": {
-        "tags": ["Authentication"],
+        "tags": ["User Authentication"],
         "summary": "Logout the current user",
         "security": [{ "cookieAuth": [] }],
         "responses": {
@@ -98,7 +99,7 @@
     },
     "/api/v1/auth/admins/register": {
       "post": {
-        "tags": ["Authentication"],
+        "tags": ["Admin Authentication"],
         "summary": "Register a new admin",
         "requestBody": {
           "required": true,
@@ -125,7 +126,7 @@
     },
     "/api/v1/auth/admins/login": {
       "post": {
-        "tags": ["Authentication"],
+        "tags": ["Admin Authentication"],
         "summary": "Login as an admin",
         "requestBody": {
           "required": true,
@@ -153,7 +154,7 @@
     },
     "/api/v1/auth/admins/logout": {
       "post": {
-        "tags": ["Authentication"],
+        "tags": ["Admin Authentication"],
         "summary": "Logout the current admin",
         "security": [{ "cookieAuth": [] }],
         "responses": {
