@@ -2,9 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
-
-
-
 // api routes
 import swaggerRoutes from './routes/swagger.route.js';
 import healthRoutes from './routes/health.route.js';
