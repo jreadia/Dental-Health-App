@@ -26,6 +26,11 @@ We undertook a comprehensive refactor to ensure all API routes adhere to strict 
 - **Testing**: 110/110 tests are passing. All tests were updated to hit the new `/api/v1/` URIs.
 - **Linting**: Fixed all ESLint warnings for a fully clean codebase.
 
+### API Documentation & Swagger UI
+- **Interactive Documentation**: Integrated `swagger-ui-express` to serve interactive API documentation at `/api-docs`.
+- **Swagger JSON**: Created `server/swagger.json` mapping all endpoints to the OpenAPI 3.0 specification. Pre-populated inputs with valid dummy data matching our strict Zod schemas.
+- **Root Redirect**: Updated the root route `/` to automatically redirect to `/api-docs` instead of serving the mock frontend.
+- **Code Organization**: Extracted all Swagger serving and setup logic into a dedicated `server/routes/swagger.route.js` to keep `server/app.js` exceptionally clean.
 ---
 
 ## 2. ML Gatekeeper Architecture & Changed Files

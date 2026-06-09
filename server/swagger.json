@@ -1,0 +1,306 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Dental Health App API",
+    "version": "1.0.0",
+    "description": "API documentation for the Dental Health App gatekeeper and management backend."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "token",
+        "description": "HTTP-Only cookie containing the JWT authentication token."
+      }
+    }
+  },
+  "tags": [
+    { "name": "Authentication", "description": "User and Admin authentication endpoints" },
+    { "name": "Dental Images", "description": "Endpoints for processing ML images and fetching history" },
+    { "name": "Admin Management", "description": "Endpoints to manage admin accounts" },
+    { "name": "User Management", "description": "Endpoints to manage user accounts and view their data" }
+  ],
+  "paths": {
+    "/api/v1/auth/users/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": { "type": "string", "example": "John" },
+                  "lastName": { "type": "string", "example": "Doe" },
+                  "email": { "type": "string", "format": "email", "example": "john.doe@example.com" },
+                  "password": { "type": "string", "minLength": 8, "example": "SecurePassword123" },
+                  "phoneNumber": { "type": "string", "example": "123-456-7890" },
+                  "address": { "type": "string", "example": "123 Main St" },
+                  "birthday": { "type": "string", "format": "date", "example": "1990-01-01" }
+                },
+                "required": ["firstName", "lastName", "email", "password", "phoneNumber", "address", "birthday"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "User successfully registered" },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/api/v1/auth/users/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login as a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email", "example": "john.doe@example.com" },
+                  "password": { "type": "string", "example": "SecurePassword123" }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully authenticated. Sets httpOnly 'token' cookie."
+          },
+          "400": { "description": "Validation error" },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/api/v1/auth/users/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Logout the current user",
+        "security": [{ "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "Successfully logged out. Clears 'token' cookie." }
+        }
+      }
+    },
+    "/api/v1/auth/admins/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register a new admin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": { "type": "string", "example": "Admin" },
+                  "lastName": { "type": "string", "example": "User" },
+                  "email": { "type": "string", "format": "email", "example": "admin@example.com" },
+                  "password": { "type": "string", "minLength": 8, "example": "SecurePassword123" }
+                },
+                "required": ["firstName", "lastName", "email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Admin successfully registered" },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/api/v1/auth/admins/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login as an admin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email", "example": "admin@example.com" },
+                  "password": { "type": "string", "example": "SecurePassword123" }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully authenticated. Sets httpOnly 'token' cookie."
+          },
+          "400": { "description": "Validation error" },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/api/v1/auth/admins/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Logout the current admin",
+        "security": [{ "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "Successfully logged out. Clears 'token' cookie." }
+        }
+      }
+    },
+    "/api/v1/dental-images": {
+      "post": {
+        "tags": ["Dental Images"],
+        "summary": "Upload a dental image for ML gatekeeper analysis",
+        "security": [{ "cookieAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The dental image file"
+                  }
+                },
+                "required": ["image"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Image uploaded, ML analysis complete, and data saved to Firestore." },
+          "400": { "description": "No image file provided" },
+          "401": { "description": "Unauthorized" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "get": {
+        "tags": ["Dental Images"],
+        "summary": "Get authenticated user's dental image history",
+        "security": [{ "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "Successfully fetched user image history" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/v1/admins": {
+      "get": {
+        "tags": ["Admin Management"],
+        "summary": "Get all admins",
+        "security": [{ "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "List of admins fetched successfully" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden (Requires Admin)" }
+        }
+      }
+    },
+    "/api/v1/admins/{id}": {
+      "put": {
+        "tags": ["Admin Management"],
+        "summary": "Update an admin account",
+        "security": [{ "cookieAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string", "example": "H1U8j1l..." },
+            "description": "Admin UID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": { "type": "string", "example": "Jane" },
+                  "lastName": { "type": "string", "example": "Doe" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Admin updated successfully" },
+          "400": { "description": "Validation Error" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden (Requires Admin)" }
+        }
+      },
+      "delete": {
+        "tags": ["Admin Management"],
+        "summary": "Delete an admin account",
+        "security": [{ "cookieAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string", "example": "H1U8j1l..." },
+            "description": "Admin UID"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Admin deleted successfully" },
+          "400": { "description": "Cannot delete yourself" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden (Requires Admin)" }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "tags": ["User Management"],
+        "summary": "Get all users",
+        "security": [{ "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "List of users fetched successfully" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden (Requires Admin)" }
+        }
+      }
+    },
+    "/api/v1/users/{userId}/dental-images": {
+      "get": {
+        "tags": ["User Management"],
+        "summary": "Get a specific user's dental image history",
+        "security": [{ "cookieAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": { "type": "string", "example": "u8J1p..." },
+            "description": "User UID"
+          }
+        ],
+        "responses": {
+          "200": { "description": "User image history fetched successfully" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden (Requires Admin)" }
+        }
+      }
+    }
+  }
+}

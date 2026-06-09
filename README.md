@@ -1,78 +1,60 @@
-# Dental Web Application Backend
+# Dental Health App Backend
 
-Backend for the Dental Web Application, built with Node.js, Express, Firebase, and YOLOv8 following a 4-week accelerated development timeline on free-tier infrastructure.
+Backend for the Dental Web Application, built with Node.js, Express, Firebase, and YOLOv8 following an accelerated development timeline on free-tier infrastructure.
 
 ## Architecture
 
-The application uses a microservice architecture on Render:
+The application uses a microservice architecture built for Render:
 
-1. **Node.js Backend** (main API server) - Handles authentication, data management, and orchestration
-2. **ML Inference Service** (teammate-built) - Separate endpoint for YOLOv8 model inference
-3. **Firebase** (external) - Authentication and database
-4. **Cloudinary** (external) - Image storage
+1. **Node.js Backend** (main API server) - Handles authentication, data management, and orchestration.
+2. **ML Inference Service** (teammate-built) - Separate endpoint for YOLOv8 model inference. (Currently using a local dummy `/api/mock-ml/predict` endpoint for development).
+3. **Firebase** (external) - Authentication and Firestore database.
+4. **Cloudinary** (external) - Image storage for original and annotated dental images.
 
 **Inference Flow**:
-1. User uploads dental image → Stored in Cloudinary
-2. Frontend calls Node.js `/api/diagnosis/create` with image URL
-3. Node.js calls ML Inference endpoint (HTTP POST) with image
-4. ML Service returns: plaqueDetected, plaqueLevel, oralHealthStatus, confidenceScore
-5. Node.js stores results in Firestore diagnosis_results collection
+1. User uploads dental image via `multipart/form-data`.
+2. Backend intercepts file, sends it to ML Inference endpoint.
+3. ML Service returns base64 annotated image and bounding box metadata (e.g., calculus detected).
+4. Node.js uploads both original and annotated images to Cloudinary simultaneously.
+5. Node.js embeds the ML results into a `dental_images` Firestore document linked to the user.
 
 ## Project Structure
 
-```
-public/                                 # Mock frontend for local API testing purposes
+```text
 schema.dbml                             # Database Entity Relationship Diagram (ERD)
+API_DOCUMENTATION.md                    # Static reference for frontend team
+week5_updates.md                        # Changelog for latest architecture changes
 server/
 ├── app.js                              # Main Express app (orchestrates routes and middleware)
 ├── server.js                           # Entry point to start the server
+├── swagger.json                        # OpenAPI 3.0 specification file
 │
 ├── config/
-│   ├── firebase.js                     # Firebase Admin SDK initialization (uses env vars)
-│   └── cloudinary.js                   # Cloudinary configuration (uses env vars)
+│   ├── firebase.js                     # Firebase Admin SDK initialization
+│   └── cloudinary.js                   # Cloudinary configuration
 │
-├── routes/                             # API route handlers
-│   ├── health.js                       # Health check endpoint
-│   ├── auth.js                         # User authentication (signup/login)
-│   ├── adminAuth.js                    # Admin authentication (signup/login)
-│   └── dentalImages.js                 # Image upload endpoints
+├── routes/                             # Strict REST API route handlers (/api/v1/...)
+│   ├── swagger.route.js                # Serves Swagger UI and handles root redirect
+│   ├── health.route.js                 # Health check endpoint
+│   ├── userAuth.route.js               # User authentication (signup/login/logout)
+│   ├── adminAuth.route.js              # Admin authentication (signup/login/logout)
+│   ├── adminManagement.route.js        # Admin management (GET, PUT, DELETE)
+│   ├── adminUsers.route.js             # User lookup for Admins
+│   └── dentalImages.route.js           # Image upload and history fetch endpoints
 │
-├── middleware/                         # Custom middleware for auth, error handling
-│   ├── token.js                        # Firebase token verification middleware
-│   ├── errorHandler.js                 # Centralized error handling middleware
-│   └── upload.js                       # Multer memory storage middleware
+├── middleware/                         
+│   ├── token.js                        # Validates httpOnly JWT cookies
+│   ├── adminAuth.js                    # Ensures user is an authorized admin
+│   ├── errorHandler.js                 # Centralized error handling
+│   └── upload.js                       # Multer memory storage
 │
-├── schemas/                            # Data validation schemas (Zod)
-│   ├── userSchema.js                   # User signup, login, and update validation
-│   ├── adminSchema.js                  # Admin signup, login, and update validation
-│   ├── dentalImageSchema.js            # Dental image validation
-│   ├── diagnosisResultSchema.js        # Diagnosis result validation
-│   └── appointmentSchema.js            # Appointment validation
+├── schemas/                            # Zod Data validation
+│   └── [various schema files]          
 │
 ├── services/                           # Firestore operations
-│   ├── userService.js                  # User CRUD and authentication operations
-│   ├── adminService.js                 # Admin CRUD and authentication operations
-│   ├── dentalImageService.js           # Dental image CRUD operations
-│   └── diagnosisResultService.js       # Diagnosis result CRUD operations
+│   └── [various service files]         
 │
-└── tests/                              # Test suite (ESM)
-    ├── firebase_tests/
-    │   ├── firebaseConnection.test.js  # Firebase Admin SDK connection tests
-    │   └── firestoreRules.test.js      # Firestore security rules tests
-    ├── middleware_tests/
-    │   ├── errorHandler.test.js        # Error handling middleware tests
-    │   └── token.test.js               # Auth token verification tests
-    ├── routes_tests/
-    │   ├── healthRoute.test.js         # Health check endpoint tests
-    │   ├── authRoutes.test.js          # User authentication routes tests
-    │   ├── adminAuthRoutes.test.js     # Admin authentication routes tests
-    │   └── dentalImagesRoutes.test.js  # Image upload routes tests
-    └── schema_tests/
-        ├── userService.test.js         # User schema validation tests
-        ├── adminService.test.js        # Admin schema validation tests
-        ├── dentalImageSchema.test.js   # Dental image schema tests
-        ├── diagnosisResultSchema.test.js # Diagnosis result schema tests
-        └── appointmentSchema.test.js   # Appointment schema tests
+└── tests/                              # Comprehensive Jest test suite
 ```
 
 ## Setup Instructions
@@ -81,23 +63,14 @@ server/
 ```sh
 npm install
 ```
-This installs: firebase-admin, firebase, dotenv, zod, cors, express, cloudinary, multer, jest, and supertest.
 
-### 2. Firebase Credentials
-
-Get these from Firebase Console > Settings > Service Accounts > Generate New Private Key:
-- `projectId`
-- `clientEmail`
-- `privateKey` (the full private key with embedded `\n` characters)
-
-### 3. Environment Variables
-
-Create `.env` at the root with:
-```
+### 2. Environment Variables
+Create `.env` at the root with your Firebase Admin, Firebase Client, and Cloudinary credentials:
+```text
 # Firebase Admin SDK
 FIREBASE_PROJECT_ID=your-project-id
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 
 # Firebase Web SDK (client)
 FIREBASE_API_KEY=your-web-api-key
@@ -115,215 +88,82 @@ NODE_ENV=development
 PORT=3000
 ```
 
-Note: The private key will have literal `\n` characters that get properly escaped by the `.replace(/\\n/g, '\n')` logic in config.js.
-
-### 4. Run the server
+### 3. Run the server
 ```sh
 npm run dev
 ```
+Navigate to `http://localhost:3000/api-docs` to view the interactive API documentation.
 
-### 5. Run tests
+### 4. Run tests
 ```sh
-# Run all tests
 npm test
-
-# Run specific test file
-npm test -- authRoutes.test.js
-npm test -- adminAuthRoutes.test.js
-
-# Run by test type
-npm test -- schema_tests/
-npm test -- routes_tests/
-npm test -- firebase_tests/
-npm test -- middleware_tests/
+npm run lint
 ```
 
-## Testing
+## API Endpoints (v1)
 
-### Test Suite (108 tests, all passing)
+This API strictly follows RESTful principles under the `/api/v1/` namespace. Authentication is handled via secure **HTTP-Only cookies**. 
 
-**Schema Tests (97 tests):**
-- `userService.test.js` - 20 tests for user signup, login, and update validation
-- `adminService.test.js` - 19 tests for admin signup, login, and update validation
-- `dentalImageSchema.test.js` - 11 tests for dental image creation and updates
-- `diagnosisResultSchema.test.js` - 24 tests for diagnosis results with enum validation
-- `appointmentSchema.test.js` - 23 tests for appointment scheduling with date/time validation
+*(Note: Frontend clients must use `withCredentials: true` in Axios or `credentials: 'include'` in Fetch).*
 
-**Middleware Tests:**
-- `errorHandler.test.js` - Tests error formatting and status codes
-- `token.test.js` - Tests Firebase token verification and edge cases
+### Authentication Routes
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/v1/auth/users/register` | Register a new user | No |
+| POST | `/api/v1/auth/users/login` | Login user (Sets `token` cookie) | No |
+| POST | `/api/v1/auth/users/logout` | Logout user (Clears cookie) | Yes |
+| POST | `/api/v1/auth/admins/register` | Register a new admin | No |
+| POST | `/api/v1/auth/admins/login` | Login admin (Sets `token` cookie) | No |
+| POST | `/api/v1/auth/admins/logout` | Logout admin (Clears cookie) | Yes (Admin) |
 
-**Route Tests:**
-- `healthRoute.test.js` - Tests health check endpoint
-- `authRoutes.test.js` - Tests for user authentication validation and error handling
-- `adminAuthRoutes.test.js` - Tests for admin authentication validation and error handling
-- `dentalImagesRoutes.test.js` - Tests for image upload endpoints with Cloudinary mocking
+### Dental Images (User)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/v1/dental-images` | Upload image for ML gatekeeper | Yes |
+| GET | `/api/v1/dental-images` | Get logged-in user's image history | Yes |
 
-**Firebase Tests (2 tests):**
-- `firebaseConnection.test.js` - Verifies Firebase Admin SDK connection
-- `firestoreRules.test.js` - Tests Firestore security rules (deny unauthenticated, allow admin SDK)
+### Management Routes (Admin Only)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/v1/admins` | Get list of all admins | Yes (Admin) |
+| PUT | `/api/v1/admins/:id` | Update an admin's details | Yes (Admin) |
+| DELETE | `/api/v1/admins/:id` | Delete an admin account | Yes (Admin) |
+| GET | `/api/v1/users` | Get list of all users | Yes (Admin) |
+| GET | `/api/v1/users/:userId/dental-images` | View specific user's image history | Yes (Admin) |
 
-### Test Coverage
+## Interactive Documentation (Swagger UI)
+The backend features an interactive OpenAPI (Swagger) interface. 
+When the server is running, navigate to `http://localhost:3000/api-docs` to view payload schemas, expected responses, and test the endpoints directly from your browser.
 
-- **Input Validation**: Email format, password length, required fields
-- **Schema Validation**: All Zod schemas tested for valid and invalid data
-- **Enum Validation**: Plaque levels, oral health status, appointment status
-- **Firebase Integration**: Connection and security rule verification
-- **Error Handling**: Proper HTTP status codes and error messages
+## Security & Guardrails
 
-## Module System
+- **HTTP-Only Cookies**: JWT tokens are never exposed to client-side JavaScript.
+- **Two-Tier Middleware Protection**: `verifyToken` handles global authentication, while `verifyAdmin` strictly protects administrative endpoints via fast Firestore lookups.
+- **No Local Disk Storage**: Images are handled as in-memory buffers and streamed to Cloudinary to support free-tier PaaS deployments (Render).
+- **Zod Gateway**: All incoming payload data is strictly validated before interacting with Firestore.
+- **Database Optimization**: ML Results are embedded directly inside `dental_images` documents to drastically reduce Firestore read/write operations.
 
-This project uses ES Modules (ESM) for modern JavaScript standards:
-- All files use `import`/`export` syntax
-- `package.json` has `"type": "module"` enabled
-- Jest configured to work with ESM
-- All import paths require `.js` extensions
-- Firebase Admin SDK exports: `db`, `auth`, `admin`
+## Testing Status
 
-## Database Schema (Firestore)
-
-Collections:
-- **users**: User profiles and account information (Firebase Auth linked)
-- **admins**: Admin accounts (Firebase Auth linked)
-- **dental_images**: Images uploaded by users
-- **diagnosis_results**: AI diagnosis results linked to images
-- **admin_view_results**: Admin diagnosis reviews
-- **appointments**: Appointment bookings (pending implementation)
-
-Data validation handled by Zod schemas before Firestore operations.
-
-## Authentication
-
-User and admin authentication uses Firebase Authentication with email/password. The backend verifies Firebase ID tokens using the Admin SDK.
-
-### User Signup
-```
-POST /api/auth/signup
-Content-Type: application/json
-
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
-  "password": "SecurePassword123"
-}
-
-Response (201):
-{
-  "success": true,
-  "uid": "...",
-  "user": {
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john@example.com"
-  }
-}
-```
-
-### User Login
-```
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "email": "john@example.com",
-  "password": "SecurePassword123"
-}
-
-Response (200):
-{
-  "success": true,
-  "token": "...",
-  "user": {
-    "uid": "...",
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john@example.com"
-  }
-}
-```
-
-### Admin Signup and Login
-Same as user authentication but at `/api/admin/auth/signup` and `/api/admin/auth/login`.
-
-## Image Uploads
-
-Images are uploaded directly to Cloudinary using an in-memory multer stream to avoid disk writes.
-
-```
-POST /api/dental-images/upload
-Authorization: Bearer <FIREBASE_ID_TOKEN>
-Content-Type: multipart/form-data
-
-image: (File)
-
-Response (201):
-{
-  "success": true,
-  "message": "Image uploaded successfully",
-  "data": {
-    "imageId": "123456789",
-    "imageUrl": "https://res.cloudinary.com/..."
-  }
-}
-```
-
-## Architecture Guardrails
-
-- No local disk storage: Images handled as in-memory buffers, streamed to external storage
-- No serverless backend conversions: Image uploads handled on Render, not Vercel
-- Token verification mandatory: All protected endpoints verify Firebase ID tokens
-- NoSQL denormalization: Frequently-accessed data embedded to keep reads fast
-- ES Modules only: All files use import/export syntax
-- Zod gateway validation: All request payloads validated before Firestore operations
-
-## Key Technologies
-
-- Node.js 18+ with ES Modules
-- Express 5.2.1
-- Firebase Admin SDK 13.10.0 (Firestore, Auth)
-- Firebase Web SDK (client-side auth)
-- Zod 4.4.3 (data validation)
-- Cloudinary & Multer (image storage)
-- Jest 30.4 + Supertest 7.2 (testing)
-- YOLOv8 (via separate inference endpoint hosted on Render)
+The application currently has **110 passing tests** covering:
+- **Input Validation**: Email format, strict password length, demographics.
+- **Schema Validation**: Zod boundaries and enum constraints.
+- **Middleware**: Firebase token verification, edge cases, and Admin authorization.
+- **Routes**: REST compliance and error formatting.
+- **Firebase Integration**: Admin SDK connection and strict security rules.
 
 ## Current Implementation Status
 
 ### Completed
-- Express server with modular structure
-- Firebase Admin SDK configured for Render deployment
-- Health check endpoint
-- User and admin authentication (signup/login)
-- Zod schemas for all data models
-- Service layer for CRUD operations
-- Firebase token verification middleware
-- Comprehensive test suite (108 tests)
-- Error handling middleware
-- Image upload endpoints (Cloudinary integration)
+- Express server with modular ESM structure.
+- Health check endpoints and Swagger interactive documentation.
+- Robust HTTP-Only cookie authentication for Users and Admins.
+- ML Gatekeeper intercept logic and Cloudinary dual-upload handling.
+- Zod schema validation layer.
+- Admin dashboard endpoints (view users, delete admins).
+- Comprehensive test suite (110 tests) and strict ESLint compliance.
 
 ### Pending
-- ML Inference endpoint integration (awaiting teammate's endpoint URL)
-- Dental image CRUD endpoints (view/delete)
-- Appointments API endpoints
-- Admin dashboard endpoints
-- Email verification flow
-- Password reset flow
-
-## Deployment
-
-Server is configured to run on Render free tier with the following constraints:
-- 512MB RAM limit
-- Must handle all image operations in-memory
-- Uses Firebase Firestore as primary database
-- Calls teammate's ML Inference endpoint via HTTP for diagnosis predictions
-
-All environment variables must be set in the deployment platform, including the ML Inference endpoint URL once available.
-
-## Next Steps
-
-1. Implement protected endpoints with auth middleware for existing routes
-2. Integrate Roboflow API for diagnosis results
-3. Add appointments management endpoints
-4. Implement admin dashboard endpoints
-
+- Replacing the dummy ML route with the actual YOLOv8 FastAPI endpoint URL.
+- Appointments API endpoints implementation.
+- Email verification and password reset flows.
