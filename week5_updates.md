@@ -52,6 +52,28 @@ To test this without the actual ML model being finished, a local "Mock ML" route
 
 ---
 
+## Recent Schema & Code Quality Updates
+
+### 10. `schema.dbml`
+- **Action**: Updated database schemas.
+- **Details**: 
+  - Changed `plaque_detected` and `plaque_level` to `calculus_detected` and `calculus_amount` (int) in `diagnosis_results`. Removed `confidence_score`.
+  - Added `phone_number`, `address`, and `birthday` to the `users` table.
+
+### 11. Linting & Code Quality
+- **Action**: Installed and configured ESLint.
+- **Details**: Created `eslint.config.js` and added a `lint` script to `package.json` to enforce code quality. All code passes linting.
+
+### 12. Diagnosis Result Refactoring
+- **Action**: Updated schemas, services, and tests.
+- **Details**: Refactored `diagnosisResultSchema.js`, `diagnosisResultService.js`, and `dentalImageService.js` to use `calculusAmount` (integer validation) instead of string enums. Fully rewrote `diagnosisResultSchema.test.js` to assert number boundaries.
+
+### 13. User Registration Fields
+- **Action**: Added new demographic fields.
+- **Details**: Updated `userSchema.js`, `userService.js`, and `userAuth.route.js` to require `phoneNumber`, `address`, and `birthday` during user signup. Validated with updated tests.
+
+---
+
 ## How to Revert
 If you need to revert these changes, you can:
 1. Run `git checkout .` if you have not committed yet, OR find the previous commit and run `git revert HEAD` or `git reset --hard HEAD~1` depending on your git history.
