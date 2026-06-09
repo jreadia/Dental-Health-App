@@ -12,11 +12,16 @@ const router = express.Router();
 
 // Redirect root to Swagger API Documentation
 router.get('/', (req, res) => {
-  res.redirect('/api-docs');
+  res.redirect('/api-docs/');
 });
 
-// Serve Swagger UI
-router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+// Serve Swagger UI with a trailing slash enforcer
+router.use('/api-docs', (req, res, next) => {
+  if (req.originalUrl === '/api-docs') {
+    return res.redirect('/api-docs/');
+  }
+  next();
+}, swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
   swaggerOptions: {
     withCredentials: true
   }
