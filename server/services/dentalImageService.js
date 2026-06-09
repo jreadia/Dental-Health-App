@@ -15,10 +15,9 @@ const createDentalImage = async (imageId, imageData) => {
     // Add diagnosis if provided
     if (imageData.diagnosis) {
       imageDoc.diagnosis = {
-        plaqueDetected: imageData.diagnosis.plaqueDetected,
-        plaqueLevel: imageData.diagnosis.plaqueLevel,
+        calculusDetected: imageData.diagnosis.calculusDetected,
+        calculusAmount: imageData.diagnosis.calculusAmount,
         oralHealthStatus: imageData.diagnosis.oralHealthStatus,
-        confidenceScore: imageData.diagnosis.confidenceScore,
         diagnosisDate: new Date(imageData.diagnosis.diagnosisDate),
       };
     }
@@ -66,10 +65,9 @@ const updateDiagnosis = async (imageId, diagnosisData) => {
   try {
     await db.collection('dental_images').doc(imageId).update({
       diagnosis: {
-        plaqueDetected: diagnosisData.plaqueDetected,
-        plaqueLevel: diagnosisData.plaqueLevel,
+        calculusDetected: diagnosisData.calculusDetected,
+        calculusAmount: diagnosisData.calculusAmount,
         oralHealthStatus: diagnosisData.oralHealthStatus,
-        confidenceScore: diagnosisData.confidenceScore,
         diagnosisDate: new Date(diagnosisData.diagnosisDate),
       },
     });

@@ -26,10 +26,9 @@ Table admin_view_results {
 Table diagnosis_results {
   result_id int [pk, increment]
   image_id int [ref: > dental_images.image_id]
-  plaque_detected bool
-  plaque_level varchar
+  calculus_detected bool
+  calculus_amount int
   oral_health_status varchar
-  confidence_score decimal(5,2)
 }
 
 // Only if status is unhealthy

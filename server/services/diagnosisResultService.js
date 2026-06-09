@@ -5,10 +5,9 @@ const createDiagnosisResult = async (resultData) => {
   try {
     const docRef = await db.collection('diagnosis_results').add({
       imageId: resultData.imageId,
-      plaqueDetected: resultData.plaqueDetected,
-      plaqueLevel: resultData.plaqueLevel,
+      calculusDetected: resultData.calculusDetected,
+      calculusAmount: resultData.calculusAmount,
       oralHealthStatus: resultData.oralHealthStatus,
-      confidenceScore: resultData.confidenceScore,
       createdAt: new Date(),
     });
 
