@@ -3,12 +3,16 @@
   "info": {
     "title": "Dental Health App API",
     "version": "1.0.0",
-    "description": "API documentation for the Dental Health App gatekeeper and management backend. Protected by global (100 req/15 min) and auth-specific (5 req/5 min) rate limits."
+    "description": "API documentation for the Dental Health App gatekeeper and management backend. Protected by global (100 req/15 min) and auth-specific (5 req/5 min) rate limits.\n\n### ⚠️ Important Note for React Frontend Developers\n1. **Credentials Required**: Authentication uses HTTP-Only cookies. You **MUST** configure your client (Axios or fetch) to send credentials with every request (`withCredentials: true` in Axios, or `credentials: 'include'` in fetch).\n2. **State Management**: Do not try to store a token in localStorage. Simply maintain the user object returned from the `/login` endpoint in your application state.\n3. **Image Uploads**: Dental images must be uploaded using `multipart/form-data` (i.e., using a `FormData` object in React)."
   },
   "servers": [
     {
-      "url": "/",
-      "description": "Current Server"
+      "url": "http://localhost:3000",
+      "description": "Local Development Server"
+    },
+    {
+      "url": "https://dental-health-backend-x7b5.onrender.com",
+      "description": "Production Server"
     }
   ],
   "components": {
@@ -22,16 +26,33 @@
     }
   },
   "tags": [
-    { "name": "User Authentication", "description": "User authentication endpoints" },
-    { "name": "Admin Authentication", "description": "Admin authentication endpoints" },
-    { "name": "Dental Images", "description": "Endpoints for processing ML images and fetching history" },
-    { "name": "Admin Management", "description": "Endpoints to manage admin accounts" },
-    { "name": "User Management", "description": "Endpoints to manage user accounts and view their data" }
+    {
+      "name": "User Authentication",
+      "description": "User authentication endpoints"
+    },
+    {
+      "name": "Admin Authentication",
+      "description": "Admin authentication endpoints"
+    },
+    {
+      "name": "Dental Images",
+      "description": "Endpoints for processing ML images and fetching history"
+    },
+    {
+      "name": "Admin Management",
+      "description": "Endpoints to manage admin accounts"
+    },
+    {
+      "name": "User Management",
+      "description": "Endpoints to manage user accounts and view their data"
+    }
   ],
   "paths": {
     "/api/v1/auth/users/register": {
       "post": {
-        "tags": ["User Authentication"],
+        "tags": [
+          "User Authentication"
+        ],
         "summary": "Register a new user",
         "requestBody": {
           "required": true,
@@ -40,29 +61,69 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "firstName": { "type": "string", "example": "John" },
-                  "lastName": { "type": "string", "example": "Doe" },
-                  "email": { "type": "string", "format": "email", "example": "john.doe@example.com" },
-                  "password": { "type": "string", "minLength": 8, "example": "SecurePassword123" },
-                  "phoneNumber": { "type": "string", "example": "123-456-7890" },
-                  "address": { "type": "string", "example": "123 Main St" },
-                  "birthday": { "type": "string", "format": "date", "example": "1990-01-01" }
+                  "firstName": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "example": "Doe"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john.doe@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "example": "SecurePassword123"
+                  },
+                  "phoneNumber": {
+                    "type": "string",
+                    "example": "123-456-7890"
+                  },
+                  "address": {
+                    "type": "string",
+                    "example": "123 Main St"
+                  },
+                  "birthday": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "1990-01-01"
+                  }
                 },
-                "required": ["firstName", "lastName", "email", "password", "phoneNumber", "address", "birthday"]
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "email",
+                  "password",
+                  "phoneNumber",
+                  "address",
+                  "birthday"
+                ]
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "User successfully registered" },
-          "400": { "description": "Validation error" },
-          "429": { "description": "Too many requests. Rate limit exceeded." }
+          "201": {
+            "description": "User successfully registered"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "429": {
+            "description": "Too many requests. Rate limit exceeded."
+          }
         }
       }
     },
     "/api/v1/auth/users/login": {
       "post": {
-        "tags": ["User Authentication"],
+        "tags": [
+          "User Authentication"
+        ],
         "summary": "Login as a user",
         "requestBody": {
           "required": true,
@@ -71,10 +132,20 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "format": "email", "example": "john.doe@example.com" },
-                  "password": { "type": "string", "example": "SecurePassword123" }
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john.doe@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "SecurePassword123"
+                  }
                 },
-                "required": ["email", "password"]
+                "required": [
+                  "email",
+                  "password"
+                ]
               }
             }
           }
@@ -83,25 +154,41 @@
           "200": {
             "description": "Successfully authenticated. Sets httpOnly 'token' cookie."
           },
-          "400": { "description": "Validation error" },
-          "401": { "description": "Invalid credentials" },
-          "429": { "description": "Too many login attempts. Rate limit exceeded." }
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "429": {
+            "description": "Too many login attempts. Rate limit exceeded."
+          }
         }
       }
     },
     "/api/v1/auth/users/logout": {
       "post": {
-        "tags": ["User Authentication"],
+        "tags": [
+          "User Authentication"
+        ],
         "summary": "Logout the current user",
-        "security": [{ "cookieAuth": [] }],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "Successfully logged out. Clears 'token' cookie." }
+          "200": {
+            "description": "Successfully logged out. Clears 'token' cookie."
+          }
         }
       }
     },
     "/api/v1/auth/admins/register": {
       "post": {
-        "tags": ["Admin Authentication"],
+        "tags": [
+          "Admin Authentication"
+        ],
         "summary": "Register a new admin",
         "requestBody": {
           "required": true,
@@ -110,26 +197,53 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "firstName": { "type": "string", "example": "Admin" },
-                  "lastName": { "type": "string", "example": "User" },
-                  "email": { "type": "string", "format": "email", "example": "admin@example.com" },
-                  "password": { "type": "string", "minLength": 8, "example": "SecurePassword123" }
+                  "firstName": {
+                    "type": "string",
+                    "example": "Admin"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "example": "User"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "admin@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "example": "SecurePassword123"
+                  }
                 },
-                "required": ["firstName", "lastName", "email", "password"]
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "email",
+                  "password"
+                ]
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Admin successfully registered" },
-          "400": { "description": "Validation error" },
-          "429": { "description": "Too many requests. Rate limit exceeded." }
+          "201": {
+            "description": "Admin successfully registered"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "429": {
+            "description": "Too many requests. Rate limit exceeded."
+          }
         }
       }
     },
     "/api/v1/auth/admins/login": {
       "post": {
-        "tags": ["Admin Authentication"],
+        "tags": [
+          "Admin Authentication"
+        ],
         "summary": "Login as an admin",
         "requestBody": {
           "required": true,
@@ -138,10 +252,20 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "format": "email", "example": "admin@example.com" },
-                  "password": { "type": "string", "example": "SecurePassword123" }
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "admin@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "SecurePassword123"
+                  }
                 },
-                "required": ["email", "password"]
+                "required": [
+                  "email",
+                  "password"
+                ]
               }
             }
           }
@@ -150,27 +274,47 @@
           "200": {
             "description": "Successfully authenticated. Sets httpOnly 'token' cookie."
           },
-          "400": { "description": "Validation error" },
-          "401": { "description": "Invalid credentials" },
-          "429": { "description": "Too many login attempts. Rate limit exceeded." }
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "429": {
+            "description": "Too many login attempts. Rate limit exceeded."
+          }
         }
       }
     },
     "/api/v1/auth/admins/logout": {
       "post": {
-        "tags": ["Admin Authentication"],
+        "tags": [
+          "Admin Authentication"
+        ],
         "summary": "Logout the current admin",
-        "security": [{ "cookieAuth": [] }],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "Successfully logged out. Clears 'token' cookie." }
+          "200": {
+            "description": "Successfully logged out. Clears 'token' cookie."
+          }
         }
       }
     },
     "/api/v1/dental-images": {
       "post": {
-        "tags": ["Dental Images"],
+        "tags": [
+          "Dental Images"
+        ],
         "summary": "Upload a dental image for ML gatekeeper analysis",
-        "security": [{ "cookieAuth": [] }],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -184,51 +328,92 @@
                     "description": "The dental image file"
                   }
                 },
-                "required": ["image"]
+                "required": [
+                  "image"
+                ]
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Image uploaded, ML analysis complete, and data saved to Firestore." },
-          "400": { "description": "No image file provided" },
-          "401": { "description": "Unauthorized" },
-          "500": { "description": "Server error" }
+          "201": {
+            "description": "Image uploaded, ML analysis complete, and data saved to Firestore."
+          },
+          "400": {
+            "description": "No image file provided"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Server error"
+          }
         }
       },
       "get": {
-        "tags": ["Dental Images"],
+        "tags": [
+          "Dental Images"
+        ],
         "summary": "Get authenticated user's dental image history",
-        "security": [{ "cookieAuth": [] }],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "Successfully fetched user image history" },
-          "401": { "description": "Unauthorized" }
+          "200": {
+            "description": "Successfully fetched user image history"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/api/v1/admins": {
       "get": {
-        "tags": ["Admin Management"],
+        "tags": [
+          "Admin Management"
+        ],
         "summary": "Get all admins",
-        "security": [{ "cookieAuth": [] }],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "List of admins fetched successfully" },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden (Requires Admin)" }
+          "200": {
+            "description": "List of admins fetched successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (Requires Admin)"
+          }
         }
       }
     },
     "/api/v1/admins/{id}": {
       "put": {
-        "tags": ["Admin Management"],
+        "tags": [
+          "Admin Management"
+        ],
         "summary": "Update an admin account",
-        "security": [{ "cookieAuth": [] }],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": { "type": "string", "example": "H1U8j1l..." },
+            "schema": {
+              "type": "string",
+              "example": "H1U8j1l..."
+            },
             "description": "Admin UID"
           }
         ],
@@ -239,71 +424,129 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "firstName": { "type": "string", "example": "Jane" },
-                  "lastName": { "type": "string", "example": "Doe" }
+                  "firstName": {
+                    "type": "string",
+                    "example": "Jane"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "example": "Doe"
+                  }
                 }
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Admin updated successfully" },
-          "400": { "description": "Validation Error" },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden (Requires Admin)" }
+          "200": {
+            "description": "Admin updated successfully"
+          },
+          "400": {
+            "description": "Validation Error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (Requires Admin)"
+          }
         }
       },
       "delete": {
-        "tags": ["Admin Management"],
+        "tags": [
+          "Admin Management"
+        ],
         "summary": "Delete an admin account",
-        "security": [{ "cookieAuth": [] }],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": { "type": "string", "example": "H1U8j1l..." },
+            "schema": {
+              "type": "string",
+              "example": "H1U8j1l..."
+            },
             "description": "Admin UID"
           }
         ],
         "responses": {
-          "200": { "description": "Admin deleted successfully" },
-          "400": { "description": "Cannot delete yourself" },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden (Requires Admin)" }
+          "200": {
+            "description": "Admin deleted successfully"
+          },
+          "400": {
+            "description": "Cannot delete yourself"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (Requires Admin)"
+          }
         }
       }
     },
     "/api/v1/users": {
       "get": {
-        "tags": ["User Management"],
+        "tags": [
+          "User Management"
+        ],
         "summary": "Get all users",
-        "security": [{ "cookieAuth": [] }],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "List of users fetched successfully" },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden (Requires Admin)" }
+          "200": {
+            "description": "List of users fetched successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (Requires Admin)"
+          }
         }
       }
     },
     "/api/v1/users/{userId}/dental-images": {
       "get": {
-        "tags": ["User Management"],
+        "tags": [
+          "User Management"
+        ],
         "summary": "Get a specific user's dental image history",
-        "security": [{ "cookieAuth": [] }],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
             "name": "userId",
             "required": true,
-            "schema": { "type": "string", "example": "u8J1p..." },
+            "schema": {
+              "type": "string",
+              "example": "u8J1p..."
+            },
             "description": "User UID"
           }
         ],
         "responses": {
-          "200": { "description": "User image history fetched successfully" },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden (Requires Admin)" }
+          "200": {
+            "description": "User image history fetched successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (Requires Admin)"
+          }
         }
       }
     }
