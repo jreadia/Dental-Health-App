@@ -106,28 +106,36 @@ This API strictly follows RESTful principles under the `/api/v1/` namespace. Aut
 
 *(Note: Frontend clients must use `withCredentials: true` in Axios or `credentials: 'include'` in Fetch).*
 
-### Authentication Routes
+### User Authentication
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
 | POST | `/api/v1/auth/users/register` | Register a new user | No |
 | POST | `/api/v1/auth/users/login` | Login user (Sets `token` cookie) | No |
 | POST | `/api/v1/auth/users/logout` | Logout user (Clears cookie) | Yes |
+
+### Admin Authentication
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
 | POST | `/api/v1/auth/admins/register` | Register a new admin | No |
 | POST | `/api/v1/auth/admins/login` | Login admin (Sets `token` cookie) | No |
 | POST | `/api/v1/auth/admins/logout` | Logout admin (Clears cookie) | Yes (Admin) |
 
-### Dental Images (User)
+### Dental Images
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
 | POST | `/api/v1/dental-images` | Upload image for ML gatekeeper | Yes |
 | GET | `/api/v1/dental-images` | Get logged-in user's image history | Yes |
 
-### Management Routes (Admin Only)
+### Admin Management
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
 | GET | `/api/v1/admins` | Get list of all admins | Yes (Admin) |
 | PUT | `/api/v1/admins/:id` | Update an admin's details | Yes (Admin) |
 | DELETE | `/api/v1/admins/:id` | Delete an admin account | Yes (Admin) |
+
+### User Management
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
 | GET | `/api/v1/users` | Get list of all users | Yes (Admin) |
 | GET | `/api/v1/users/:userId/dental-images` | View specific user's image history | Yes (Admin) |
 
@@ -139,6 +147,7 @@ When the server is running, navigate to `http://localhost:3000/api-docs` to view
 
 - **HTTP-Only Cookies**: JWT tokens are never exposed to client-side JavaScript.
 - **Two-Tier Middleware Protection**: `verifyToken` handles global authentication, while `verifyAdmin` strictly protects administrative endpoints via fast Firestore lookups.
+- **Rate Limiting**: Protects against brute-force attacks and API abuse using `express-rate-limit`. Global endpoints allow 100 requests per 15 minutes, while authentication routes are strictly limited to 5 requests per 5 minutes.
 - **No Local Disk Storage**: Images are handled as in-memory buffers and streamed to Cloudinary to support free-tier PaaS deployments (Render).
 - **Zod Gateway**: All incoming payload data is strictly validated before interacting with Firestore.
 - **Database Optimization**: ML Results are embedded directly inside `dental_images` documents to drastically reduce Firestore read/write operations.
