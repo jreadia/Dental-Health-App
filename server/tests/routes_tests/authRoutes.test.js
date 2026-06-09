@@ -10,6 +10,7 @@ describe('User Authentication Routes', () => {
           firstName: 'John',
           email: 'john@example.com',
           password: 'SecurePassword123',
+          // Missing lastName, phoneNumber, address, birthday
         });
 
       expect(response.status).toBe(400);
@@ -24,6 +25,9 @@ describe('User Authentication Routes', () => {
           lastName: 'Doe',
           email: 'invalid-email',
           password: 'SecurePassword123',
+          phoneNumber: '123-456-7890',
+          address: '123 Main St',
+          birthday: '1990-01-01',
         });
 
       expect(response.status).toBe(400);
@@ -38,6 +42,9 @@ describe('User Authentication Routes', () => {
           lastName: 'Doe',
           email: 'john@example.com',
           password: 'short',
+          phoneNumber: '123-456-7890',
+          address: '123 Main St',
+          birthday: '1990-01-01',
         });
 
       expect(response.status).toBe(400);
@@ -51,6 +58,9 @@ describe('User Authentication Routes', () => {
           lastName: 'Doe',
           email: 'john@example.com',
           password: 'SecurePassword123',
+          phoneNumber: '123-456-7890',
+          address: '123 Main St',
+          birthday: '1990-01-01',
         });
 
       expect(response.status).toBe(400);
@@ -64,6 +74,9 @@ describe('User Authentication Routes', () => {
           firstName: 'John',
           email: 'john@example.com',
           password: 'SecurePassword123',
+          phoneNumber: '123-456-7890',
+          address: '123 Main St',
+          birthday: '1990-01-01',
         });
 
       expect(response.status).toBe(400);

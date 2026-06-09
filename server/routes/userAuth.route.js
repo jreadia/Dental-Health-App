@@ -15,9 +15,9 @@ router.post('/api/auth/signup', async (req, res) => {
       });
     }
 
-    const { firstName, lastName, email, password } = validated.data;
+    const { firstName, lastName, phoneNumber, address, birthday, email, password } = validated.data;
 
-    const result = await signupUser(email, password, { firstName, lastName });
+    const result = await signupUser(email, password, { firstName, lastName, phoneNumber, address, birthday });
 
     return res.status(201).json({
       success: true,
@@ -26,6 +26,9 @@ router.post('/api/auth/signup', async (req, res) => {
         uid: result.uid,
         firstName: result.firstName,
         lastName: result.lastName,
+        phoneNumber: result.phoneNumber,
+        address: result.address,
+        birthday: result.birthday,
         email: result.email,
       },
     });
@@ -101,6 +104,9 @@ router.post('/api/auth/login', async (req, res) => {
         uid,
         firstName: userProfile.firstName,
         lastName: userProfile.lastName,
+        phoneNumber: userProfile.phoneNumber,
+        address: userProfile.address,
+        birthday: userProfile.birthday,
         email: userProfile.email,
       },
     });

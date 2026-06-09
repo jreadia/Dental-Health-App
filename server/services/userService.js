@@ -15,13 +15,25 @@ const signupUser = async (email, password, userData) => {
     await db.collection('users').doc(uid).set({
       firstName: userData.firstName,
       lastName: userData.lastName,
+      phoneNumber: userData.phoneNumber,
+      address: userData.address,
+      birthday: userData.birthday,
       email,
       createdAt: new Date(),
     });
 
     // Get Firebase ID token (return to client to use for authentication)
     // Note: Frontend will need to sign in and get token
-    return { success: true, uid, email, firstName: userData.firstName, lastName: userData.lastName };
+    return { 
+      success: true, 
+      uid, 
+      email, 
+      firstName: userData.firstName, 
+      lastName: userData.lastName,
+      phoneNumber: userData.phoneNumber,
+      address: userData.address,
+      birthday: userData.birthday
+    };
   } catch (error) {
     throw new Error(`Failed to sign up user: ${error.message}`, { cause: error });
   }

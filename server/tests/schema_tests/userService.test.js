@@ -8,6 +8,9 @@ describe('User Schema Validation', () => {
         lastName: 'Doe',
         email: 'john@example.com',
         password: 'SecurePassword123',
+        phoneNumber: '123-456-7890',
+        address: '123 Main St',
+        birthday: '1990-01-01',
       };
 
       const result = userSignupSchema.safeParse(validUser);
@@ -20,6 +23,9 @@ describe('User Schema Validation', () => {
         lastName: 'Doe',
         email: 'not-an-email',
         password: 'SecurePassword123',
+        phoneNumber: '123-456-7890',
+        address: '123 Main St',
+        birthday: '1990-01-01',
       };
 
       const result = userSignupSchema.safeParse(invalidUser);
@@ -31,6 +37,9 @@ describe('User Schema Validation', () => {
         lastName: 'Doe',
         email: 'john@example.com',
         password: 'SecurePassword123',
+        phoneNumber: '123-456-7890',
+        address: '123 Main St',
+        birthday: '1990-01-01',
       };
 
       const result = userSignupSchema.safeParse(invalidUser);
@@ -42,6 +51,9 @@ describe('User Schema Validation', () => {
         firstName: 'John',
         email: 'john@example.com',
         password: 'SecurePassword123',
+        phoneNumber: '123-456-7890',
+        address: '123 Main St',
+        birthday: '1990-01-01',
       };
 
       const result = userSignupSchema.safeParse(invalidUser);
@@ -54,6 +66,52 @@ describe('User Schema Validation', () => {
         lastName: 'Doe',
         email: 'john@example.com',
         password: 'short',
+        phoneNumber: '123-456-7890',
+        address: '123 Main St',
+        birthday: '1990-01-01',
+      };
+
+      const result = userSignupSchema.safeParse(invalidUser);
+      expect(result.success).toBe(false);
+    });
+
+    test('should reject missing phoneNumber', () => {
+      const invalidUser = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        password: 'SecurePassword123',
+        address: '123 Main St',
+        birthday: '1990-01-01',
+      };
+
+      const result = userSignupSchema.safeParse(invalidUser);
+      expect(result.success).toBe(false);
+    });
+
+    test('should reject missing address', () => {
+      const invalidUser = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        password: 'SecurePassword123',
+        phoneNumber: '123-456-7890',
+        birthday: '1990-01-01',
+      };
+
+      const result = userSignupSchema.safeParse(invalidUser);
+      expect(result.success).toBe(false);
+    });
+
+    test('should reject missing or invalid birthday', () => {
+      const invalidUser = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        password: 'SecurePassword123',
+        phoneNumber: '123-456-7890',
+        address: '123 Main St',
+        birthday: 'invalid-date',
       };
 
       const result = userSignupSchema.safeParse(invalidUser);
@@ -66,6 +124,9 @@ describe('User Schema Validation', () => {
         lastName: 'Doe',
         email: 'john@example.com',
         password: '',
+        phoneNumber: '123-456-7890',
+        address: '123 Main St',
+        birthday: '1990-01-01',
       };
 
       const result = userSignupSchema.safeParse(invalidUser);
@@ -117,6 +178,16 @@ describe('User Schema Validation', () => {
     test('should allow partial update with firstName only', () => {
       const partialUpdate = {
         firstName: 'Jane',
+      };
+
+      const result = userUpdateSchema.safeParse(partialUpdate);
+      expect(result.success).toBe(true);
+    });
+
+    test('should allow partial update with new fields', () => {
+      const partialUpdate = {
+        phoneNumber: '987-654-3210',
+        birthday: '1995-10-10',
       };
 
       const result = userUpdateSchema.safeParse(partialUpdate);

@@ -3,6 +3,9 @@ Table users {
   first_name varchar
   last_name varchar
   email varchar [unique]
+  phone_number varchar
+  address varchar
+  birthday date
 }
 
 Table admins {
