@@ -26,7 +26,7 @@ const createDentalImage = async (imageId, imageData) => {
     await db.collection('dental_images').doc(imageId).set(imageDoc);
     return { success: true, imageId };
   } catch (error) {
-    throw new Error(`Failed to create dental image: ${error.message}`);
+    throw new Error(`Failed to create dental image: ${error.message}`, { cause: error });
   }
 };
 
@@ -39,7 +39,7 @@ const getDentalImage = async (imageId) => {
     }
     return { imageId: doc.id, ...doc.data() };
   } catch (error) {
-    throw new Error(`Failed to retrieve dental image: ${error.message}`);
+    throw new Error(`Failed to retrieve dental image: ${error.message}`, { cause: error });
   }
 };
 
@@ -57,7 +57,7 @@ const getUserImages = async (userId) => {
     });
     return images;
   } catch (error) {
-    throw new Error(`Failed to retrieve user images: ${error.message}`);
+    throw new Error(`Failed to retrieve user images: ${error.message}`, { cause: error });
   }
 };
 
@@ -75,7 +75,7 @@ const updateDiagnosis = async (imageId, diagnosisData) => {
     });
     return { success: true, imageId };
   } catch (error) {
-    throw new Error(`Failed to update diagnosis: ${error.message}`);
+    throw new Error(`Failed to update diagnosis: ${error.message}`, { cause: error });
   }
 };
 
@@ -85,7 +85,7 @@ const deleteDentalImage = async (imageId) => {
     await db.collection('dental_images').doc(imageId).delete();
     return { success: true, imageId };
   } catch (error) {
-    throw new Error(`Failed to delete dental image: ${error.message}`);
+    throw new Error(`Failed to delete dental image: ${error.message}`, { cause: error });
   }
 };
 

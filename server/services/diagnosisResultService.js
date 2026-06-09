@@ -14,7 +14,7 @@ const createDiagnosisResult = async (resultData) => {
 
     return { success: true, resultId: docRef.id };
   } catch (error) {
-    throw new Error(`Failed to create diagnosis result: ${error.message}`);
+    throw new Error(`Failed to create diagnosis result: ${error.message}`, { cause: error });
   }
 };
 
@@ -27,7 +27,7 @@ const getDiagnosisResult = async (resultId) => {
     }
     return { resultId: doc.id, ...doc.data() };
   } catch (error) {
-    throw new Error(`Failed to retrieve diagnosis result: ${error.message}`);
+    throw new Error(`Failed to retrieve diagnosis result: ${error.message}`, { cause: error });
   }
 };
 
@@ -46,7 +46,7 @@ const getDiagnosisByImageId = async (imageId) => {
     const doc = snapshot.docs[0];
     return { resultId: doc.id, ...doc.data() };
   } catch (error) {
-    throw new Error(`Failed to retrieve diagnosis result: ${error.message}`);
+    throw new Error(`Failed to retrieve diagnosis result: ${error.message}`, { cause: error });
   }
 };
 
@@ -56,7 +56,7 @@ const updateDiagnosisResult = async (resultId, resultData) => {
     await db.collection('diagnosis_results').doc(resultId).update(resultData);
     return { success: true, resultId };
   } catch (error) {
-    throw new Error(`Failed to update diagnosis result: ${error.message}`);
+    throw new Error(`Failed to update diagnosis result: ${error.message}`, { cause: error });
   }
 };
 
@@ -66,7 +66,7 @@ const deleteDiagnosisResult = async (resultId) => {
     await db.collection('diagnosis_results').doc(resultId).delete();
     return { success: true, resultId };
   } catch (error) {
-    throw new Error(`Failed to delete diagnosis result: ${error.message}`);
+    throw new Error(`Failed to delete diagnosis result: ${error.message}`, { cause: error });
   }
 };
 

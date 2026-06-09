@@ -23,7 +23,7 @@ const signupUser = async (email, password, userData) => {
     // Note: Frontend will need to sign in and get token
     return { success: true, uid, email, firstName: userData.firstName, lastName: userData.lastName };
   } catch (error) {
-    throw new Error(`Failed to sign up user: ${error.message}`);
+    throw new Error(`Failed to sign up user: ${error.message}`, { cause: error });
   }
 };
 
@@ -36,7 +36,7 @@ const getUser = async (userId) => {
     }
     return { userId: doc.id, ...doc.data() };
   } catch (error) {
-    throw new Error(`Failed to retrieve user: ${error.message}`);
+    throw new Error(`Failed to retrieve user: ${error.message}`, { cause: error });
   }
 };
 
@@ -46,7 +46,7 @@ const updateUser = async (userId, userData) => {
     await db.collection('users').doc(userId).update(userData);
     return { success: true, userId };
   } catch (error) {
-    throw new Error(`Failed to update user: ${error.message}`);
+    throw new Error(`Failed to update user: ${error.message}`, { cause: error });
   }
 };
 
@@ -61,7 +61,7 @@ const deleteUser = async (userId) => {
 
     return { success: true, userId };
   } catch (error) {
-    throw new Error(`Failed to delete user: ${error.message}`);
+    throw new Error(`Failed to delete user: ${error.message}`, { cause: error });
   }
 };
 

@@ -21,7 +21,7 @@ const signupAdmin = async (email, password, adminData) => {
 
     return { success: true, uid, email, firstName: adminData.firstName, lastName: adminData.lastName };
   } catch (error) {
-    throw new Error(`Failed to sign up admin: ${error.message}`);
+    throw new Error(`Failed to sign up admin: ${error.message}`, { cause: error });
   }
 };
 
@@ -34,7 +34,7 @@ const getAdmin = async (adminId) => {
     }
     return { adminId: doc.id, ...doc.data() };
   } catch (error) {
-    throw new Error(`Failed to retrieve admin: ${error.message}`);
+    throw new Error(`Failed to retrieve admin: ${error.message}`, { cause: error });
   }
 };
 
@@ -48,7 +48,7 @@ const getAllAdmins = async () => {
     });
     return admins;
   } catch (error) {
-    throw new Error(`Failed to retrieve admins: ${error.message}`);
+    throw new Error(`Failed to retrieve admins: ${error.message}`, { cause: error });
   }
 };
 
@@ -58,7 +58,7 @@ const updateAdmin = async (adminId, adminData) => {
     await db.collection('admins').doc(adminId).update(adminData);
     return { success: true, adminId };
   } catch (error) {
-    throw new Error(`Failed to update admin: ${error.message}`);
+    throw new Error(`Failed to update admin: ${error.message}`, { cause: error });
   }
 };
 
@@ -73,7 +73,7 @@ const deleteAdmin = async (adminId) => {
 
     return { success: true, adminId };
   } catch (error) {
-    throw new Error(`Failed to delete admin: ${error.message}`);
+    throw new Error(`Failed to delete admin: ${error.message}`, { cause: error });
   }
 };
 
