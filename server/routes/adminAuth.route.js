@@ -93,11 +93,13 @@ router.post('/api/v1/auth/admins/login', async (req, res) => {
     // Fetch admin profile from Firestore
     const adminProfile = await getAdmin(uid);
 
+    const isProduction = process.env.NODE_ENV === 'production';
+
     // Set HTTP-only cookie
     res.cookie('token', idToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'strict',
       maxAge: 3600000 // 1 hour
     });
 

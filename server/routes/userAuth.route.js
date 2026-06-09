@@ -96,11 +96,13 @@ router.post('/api/v1/auth/users/login', async (req, res) => {
     // Fetch user profile from Firestore
     const userProfile = await getUser(uid);
 
+    const isProduction = process.env.NODE_ENV === 'production';
+
     // Set HTTP-only cookie
     res.cookie('token', idToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'strict',
       maxAge: 3600000 // 1 hour
     });
 
