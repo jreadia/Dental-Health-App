@@ -46,9 +46,12 @@ jest.unstable_mockModule('axios', () => ({
     post: jest.fn().mockResolvedValue({
       status: 200,
       data: {
-        status: 'success',
         annotated_image_base64: Buffer.from('fake annotated image').toString('base64'),
-        metadata: { boxes: [] }
+        calculus_detected: "No",
+        calculus_amount: 0,
+        oral_health_status: "Healthy",
+        highest_confidence: 0.95,
+        detections: []
       }
     })
   }
@@ -99,7 +102,13 @@ describe('Dental Images Routes', () => {
         userId: 'test-uid',
         originalImageUrl: 'https://res.cloudinary.com/test-url.jpg',
         annotatedImageUrl: 'https://res.cloudinary.com/test-url.jpg',
-        mlResults: { boxes: [] }
+        mlResults: {
+          calculusDetected: false,
+          calculusAmount: 0,
+          overall_diagnosis: 'Healthy',
+          highestConfidence: 0.95,
+          boxes: []
+        }
       }));
     });
 
