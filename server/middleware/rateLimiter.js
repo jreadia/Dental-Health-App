@@ -21,3 +21,13 @@ export const authLimiter = rateLimit({
   legacyHeaders: false,
   skip: skipIfTest,
 });
+
+// Stricter rate limiter for ML route
+export const mlLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Limit each IP to 50 requests per `window` (per 15 minutes)
+  message: 'Too many image analysis requests from this IP, please try again after 15 minutes',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: skipIfTest,
+});

@@ -1,6 +1,7 @@
 import express from 'express';
 import upload from '../middleware/upload.js';
 import verifyFirebaseToken from '../middleware/token.js';
+import { mlLimiter } from '../middleware/rateLimiter.js';
 import cloudinary from '../config/cloudinary.js';
 import { createDentalImage, getUserImages } from '../services/dentalImageService.js';
 import { dentalImageCreateSchema } from '../schemas/dentalImageSchema.js';
@@ -10,7 +11,7 @@ import FormData from 'form-data';
 const router = express.Router();
 
 // POST /api/v1/dental-images - Upload image (Requires Authentication)
-router.post('/api/v1/dental-images', verifyFirebaseToken, upload.single('image'), async (req, res) => {
+router.post('/api/v1/dental-images', verifyFirebaseToken, mlLimiter, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No image file provided' });
