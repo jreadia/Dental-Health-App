@@ -15,7 +15,7 @@ const corsOptions = {
     }
 
     // Allow any Vercel preview/production deployment
-    if (origin.endsWith('.vercel.app')) {
+    if (origin.endsWith('.vercel.app') || origin.endsWith('.onrender.com')) {
       return callback(null, true);
     }
 
