@@ -22,14 +22,13 @@ router.post('/api/v1/dental-images', verifyFirebaseToken, mlLimiter, upload.sing
 
     // --- ML GATEKEEPER START ---
     const formData = new FormData();
-    formData.append('image', req.file.buffer, {
+    formData.append('file', req.file.buffer, {
       filename: req.file.originalname || 'image.jpg',
       contentType: req.file.mimetype || 'image/jpeg',
     });
 
-    // TODO: Change this URL to your teammate's Render URL when ready.
-    const port = process.env.PORT || 3000;
-    const mlApiUrl = `http://localhost:${port}/api/mock-ml/predict`;
+    // Use the deployed Render URL or allow override via environment variable
+    const mlApiUrl = process.env.ML_API_URL || 'https://calculus-model.onrender.com/predict';
 
     let mlResponse;
     try {
@@ -39,20 +38,56 @@ router.post('/api/v1/dental-images', verifyFirebaseToken, mlLimiter, upload.sing
         }
       });
     } catch (mlErr) {
-      console.error('Error connecting to ML API:', mlErr);
-      return res.status(503).json({ error: 'ML Service is currently unavailable' });
+      console.error('Error connecting to ML API. Message:', mlErr.message);
+      if (mlErr.response) {
+        console.error('ML API Error Response Status:', mlErr.response.status);
+        console.error('ML API Error Response Data:', mlErr.response.data);
+      }
+      return res.status(503).json({ error: 'ML Service is currently unavailable', details: mlErr.message });
     }
 
-    // Extract YOLOv8n data from the ML response (assuming it always succeeds if the service is up)
-    const { annotated_image_base64, metadata } = mlResponse.data;
-    const annotatedImageBuffer = Buffer.from(annotated_image_base64, 'base64');
+    // Extract YOLOv8n data from the ML response
+    const { 
+      annotated_image_base64, 
+      annotated_image, // Fallback key just in case
+      calculus_detected,
+      calculus_amount,
+      oral_health_status,
+      highest_confidence,
+      detections
+    } = mlResponse.data;
+
+    // Check both possible keys for the base64 image
+    const base64ImageString = annotated_image_base64 || annotated_image;
+    if (!base64ImageString) {
+      console.error('ML API Response missing base64 annotated image. Keys received:', Object.keys(mlResponse.data));
+      return res.status(500).json({ error: 'Invalid response format from ML Service' });
+    }
+
+    const annotatedImageBuffer = Buffer.from(base64ImageString, 'base64');
+    
+    // Map the flat ML response structure back to the expected metadata object format
+    const metadata = {
+      calculusDetected: calculus_detected === "Yes" || calculus_detected === true,
+      calculusAmount: calculus_amount || 0,
+      overall_diagnosis: oral_health_status || "Unknown",
+      highestConfidence: highest_confidence || 0,
+      boxes: Array.isArray(detections) ? detections.map(d => ({
+        confidence: d.confidence,
+        bbox: d.bbox
+      })) : []
+    };
     // --- ML GATEKEEPER END ---
 
     // Helper to upload buffer to Cloudinary
     const uploadBufferToCloudinary = (buffer) => {
       return new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
-          { folder: 'dental_images' },
+          { 
+            folder: 'dental_images',
+            format: 'webp', // Convert to WebP to save storage and bandwidth
+            quality: 'auto' // Automatically compress without noticeable quality loss
+          },
           (error, result) => {
             if (error) return reject(error);
             resolve(result);
