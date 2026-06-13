@@ -102,8 +102,8 @@ router.post('/api/v1/auth/users/login', authLimiter, async (req, res) => {
     // Set HTTP-only cookie
     res.cookie('token', idToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'strict',
+      secure: true,
+      sameSite: 'none',
       maxAge: 3600000 // 1 hour
     });
 
